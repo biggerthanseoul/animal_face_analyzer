@@ -1,10 +1,453 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>biggerthanseoul 웹사이트</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동물상 분석기 - 나는 무슨 동물상?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .upload-area {
+            border: 3px dashed rgba(255,255,255,0.5);
+            border-radius: 15px;
+            padding: 60px 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .preview-section {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 15px;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .analysis-section {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffd700;
+        }
+
+        .animal-result {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .animal-result:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .animal-emoji {
+            font-size: 3rem;
+            margin-right: 20px;
+        }
+
+        .animal-info {
+            flex: 1;
+        }
+
+        .animal-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .animal-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .percentage-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .percentage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .percentage-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-left: 15px;
+            color: #ffd700;
+        }
+
+        .share-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .share-btn {
+            background: linear-gradient(45deg, #48cae4, #0096c7);
+            margin: 0 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .upload-section, .preview-section, .analysis-section {
+                padding: 20px;
+            }
+            
+            .animal-result {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .animal-emoji {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>안녕하세요!</h1>
-    <p>biggerthanseoul의 웹사이트입니다.</p>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🐾 동물상 분석기</h1>
+            <p class="subtitle">AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!</p>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">사진을 업로드하세요</div>
+                <div class="upload-subtext">JPG, PNG 파일 지원 (최대 10MB)</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
+                사진 선택하기
+            </button>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <img id="previewImage" class="preview-image" alt="미리보기">
+            <div style="text-align: center;">
+                <button class="btn" onclick="analyzeImage()">동물상 분석하기</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>AI가 당신의 동물상을 분석하고 있습니다...</div>
+        </div>
+
+        <div class="analysis-section" id="analysisSection">
+            <h2 class="result-title">🎉 당신의 동물상 분석 결과</h2>
+            <div id="results"></div>
+            
+            <div class="share-section">
+                <button class="btn share-btn" onclick="shareResult()">결과 공유하기</button>
+                <button class="btn" onclick="resetAnalysis()">다시 분석하기</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>* 이 서비스는 재미를 위한 것으로, 과학적 근거에 기반하지 않습니다.</p>
+        </div>
+    </div>
+
+    <script>
+        const animalData = {
+            cat: {
+                emoji: '🐱',
+                name: '고양이상',
+                description: '신비롭고 도도한 매력의 소유자. 날카로운 눈매와 우아한 분위기가 특징이에요.'
+            },
+            dog: {
+                emoji: '🐶',
+                name: '강아지상',
+                description: '친근하고 따뜻한 매력의 소유자. 순수하고 밝은 에너지가 넘쳐나요.'
+            },
+            rabbit: {
+                emoji: '🐰',
+                name: '토끼상',
+                description: '귀엽고 앙증맞은 매력의 소유자. 둥근 눈과 부드러운 인상이 특징이에요.'
+            },
+            fox: {
+                emoji: '🦊',
+                name: '여우상',
+                description: '영리하고 매혹적인 매력의 소유자. 세련되고 지적인 분위기가 돋보여요.'
+            },
+            bear: {
+                emoji: '🐻',
+                name: '곰상',
+                description: '든든하고 포근한 매력의 소유자. 믿음직하고 안정감 있는 인상이에요.'
+            },
+            deer: {
+                emoji: '🦌',
+                name: '사슴상',
+                description: '우아하고 청순한 매력의 소유자. 맑고 깨끗한 분위기가 인상적이에요.'
+            }
+        };
+
+        let uploadedImage = null;
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = e.target.result;
+                    document.getElementById('previewImage').src = uploadedImage;
+                    document.getElementById('uploadSection').style.display = 'none';
+                    document.getElementById('previewSection').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function analyzeImage() {
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            // 실제로는 AI 분석을 하지만, 데모용으로 랜덤 결과 생성
+            setTimeout(() => {
+                const results = generateMockResults();
+                displayResults(results);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analysisSection').style.display = 'block';
+            }, 3000);
+        }
+
+        function generateMockResults() {
+            const animals = Object.keys(animalData);
+            const results = [];
+            
+            // 랜덤하게 점수 생성 (하나는 높게, 나머지는 낮게)
+            let remainingPercentage = 100;
+            const topAnimal = animals[Math.floor(Math.random() * animals.length)];
+            const topScore = 60 + Math.random() * 30; // 60-90%
+            
+            results.push({
+                animal: topAnimal,
+                percentage: topScore
+            });
+            
+            remainingPercentage -= topScore;
+            
+            // 나머지 동물들에게 남은 퍼센트 분배
+            const remainingAnimals = animals.filter(a => a !== topAnimal);
+            remainingAnimals.forEach((animal, index) => {
+                if (index === remainingAnimals.length - 1) {
+                    results.push({
+                        animal: animal,
+                        percentage: Math.max(remainingPercentage, 0)
+                    });
+                } else {
+                    const score = Math.random() * (remainingPercentage / 2);
+                    results.push({
+                        animal: animal,
+                        percentage: score
+                    });
+                    remainingPercentage -= score;
+                }
+            });
+
+            return results.sort((a, b) => b.percentage - a.percentage);
+        }
+
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            results.forEach((result, index) => {
+                const animal = animalData[result.animal];
+                const percentage = Math.round(result.percentage);
+                
+                const resultElement = document.createElement('div');
+                resultElement.className = 'animal-result';
+                resultElement.innerHTML = `
+                    <div class="animal-emoji">${animal.emoji}</div>
+                    <div class="animal-info">
+                        <div class="animal-name">${animal.name}</div>
+                        <div class="animal-description">${animal.description}</div>
+                        <div class="percentage-bar">
+                            <div class="percentage-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                    <div class="percentage-text">${percentage}%</div>
+                `;
+                
+                resultsContainer.appendChild(resultElement);
+            });
+        }
+
+        function shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '동물상 분석 결과',
+                    text: '나의 동물상을 확인해보세요!',
+                    url: window.location.href
+                });
+            } else {
+                // 간단한 복사 기능
+                const text = '나의 동물상 분석 결과를 확인해보세요! ' + window.location.href;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('링크가 클립보드에 복사되었습니다!');
+                });
+            }
+        }
+
+        function resetAnalysis() {
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('analysisSection').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            uploadedImage = null;
+        }
+    </script>
 </body>
 </html>
