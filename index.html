@@ -268,15 +268,58 @@
             padding: 30px;
             margin-bottom: 30px;
             border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        /* 이미지 컨테이너 추가 - 이미지 표시를 위한 중요한 수정 */
+        .image-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
         }
 
         .preview-image {
-            max-width: 300px;
-            max-height: 300px;
-            border-radius: 15px;
-            margin: 0 auto 20px;
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+            border-radius: 10px;
             display: block;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            /* 이미지가 로드되지 않았을 때를 위한 스타일 */
+            min-width: 200px;
+            min-height: 200px;
+            object-fit: cover;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* 이미지 로딩 상태 표시 */
+        .image-loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* 이미지 에러 표시 */
+        .image-error {
+            display: none;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255,107,107,0.3);
         }
 
         .analysis-section {
@@ -427,6 +470,18 @@
             font-size: 0.9rem;
         }
 
+        /* 디버그 정보 스타일 추가 */
+        .debug-info {
+            background: rgba(0,0,0,0.5);
+            color: #00ff00;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            display: none; /* 기본적으로 숨김 */
+        }
+
         @media (max-width: 768px) {
             .title {
                 font-size: 2rem;
@@ -457,6 +512,10 @@
             }
             .share-section .btn {
                 margin: 10px 5px;
+            }
+
+            .preview-image {
+                max-height: 300px;
             }
         }
     </style>
@@ -498,7 +557,12 @@
         </div>
 
         <div class="preview-section" id="previewSection">
-            <img id="previewImage" class="preview-image" alt="미리보기">
+            <div class="debug-info" id="debugInfo">디버그 정보가 여기에 표시됩니다.</div>
+            <div class="image-error" id="imageError">이미지를 불러오는 중 오류가 발생했습니다.</div>
+            <div class="image-container">
+                <div class="image-loading" id="imageLoading">이미지 로딩 중...</div>
+                <img id="previewImage" class="preview-image" alt="미리보기" style="display: none;">
+            </div>
             <div style="text-align: center;">
                 <button class="btn" onclick="analyzeImage()">
                     <span id="analyzeButtonText">동물상 분석하기</span>
@@ -534,7 +598,27 @@
         let currentMode = 'animal';
         let currentLanguage = 'ko';
         let uploadedImage = null;
-        let currentResults = null; // 현재 분석 결과를 저장
+        let currentResults = null;
+        let isDebugMode = false; // 디버그 모드 플래그
+
+        // 디버그 모드 토글 (개발자 도구에서 debugMode() 호출)
+        function debugMode() {
+            isDebugMode = !isDebugMode;
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.style.display = isDebugMode ? 'block' : 'none';
+            console.log('Debug mode:', isDebugMode);
+        }
+
+        // 디버그 정보 출력
+        function addDebugInfo(message) {
+            if (isDebugMode) {
+                const debugInfo = document.getElementById('debugInfo');
+                const timestamp = new Date().toLocaleTimeString();
+                debugInfo.innerHTML += `[${timestamp}] ${message}<br>`;
+                debugInfo.scrollTop = debugInfo.scrollHeight;
+            }
+            console.log('Debug:', message);
+        }
 
         const translations = {
             ko: {
@@ -543,6 +627,185 @@
                     subtitle: 'AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!',
                     modeText: '🐾 동물상',
                     analyzeText: '동물상 분석하기',
+                    loadingText: 'AI가 당신의 동물상을 분석하고 있습니다...',
+                    resultTitle: '🎉 당신의 동물상 분석 결과',
+                    shareText: '동물상',
+                    data: {
+                        cat: {
+                            emoji: '🐱',
+                            name: '고양이상',
+                            description: '신비롭고 우아한 매력. 독립적이면서도 따뜻한 카리스마를 가지고 있어요.'
+                        },
+                        dog: {
+                            emoji: '🐶',
+                            name: '강아지상',
+                            description: '친근하고 활발한 매력. 누구에게나 사랑받는 밝고 긍정적인 에너지를 가지고 있어요.'
+                        },
+                        rabbit: {
+                            emoji: '🐰',
+                            name: '토끼상',
+                            description: '귀엽고 순수한 매력. 깔끔하고 단정한 인상으로 많은 사람들의 마음을 사로잡아요.'
+                        },
+                        fox: {
+                            emoji: '🦊',
+                            name: '여우상',
+                            description: '지적이고 세련된 매력. 날카로우면서도 매혹적인 눈빛이 인상적이에요.'
+                        },
+                        bear: {
+                            emoji: '🐻',
+                            name: '곰상',
+                            description: '든든하고 포근한 매력. 믿음직스럽고 따뜻한 분위기로 사람들을 편안하게 해줘요.'
+                        },
+                        hamster: {
+                            emoji: '🐹',
+                            name: '햄스터상',
+                            description: '작고 귀여운 매력. 동그란 눈과 통통한 볼로 보는 이의 마음을 녹여요.'
+                        }
+                    }
+                },
+                ghost: {
+                    title: '👻 마귀상 분석기',
+                    subtitle: 'AI가 분석하는 나의 마귀상은? 신비로운 당신의 매력을 확인해보세요!',
+                    modeText: '👻 마귀상',
+                    analyzeText: '마귀상 분석하기',
+                    loadingText: 'AI가 당신의 마귀상을 분석하고 있습니다...',
+                    resultTitle: '🎃 당신의 마귀상 분석 결과',
+                    shareText: '마귀상',
+                    data: {
+                        vampire: {
+                            emoji: '🧛',
+                            name: '뱀파이어상',
+                            description: '검은 망토를 두른 신비로운 매력. 창백한 얼굴과 날카로운 송곳니가 매혹적인 카리스마를 연출해요.'
+                        },
+                        ghost: {
+                            emoji: '👻',
+                            name: '유령상',
+                            description: '긴 검은 머리와 창백한 푸른 얼굴의 신비로운 매력. 붉은 눈동자가 애절한 아름다움을 만들어내요.'
+                        },
+                        zombie: {
+                            emoji: '🧟‍♀️',
+                            name: '좀비상',
+                            description: '독특하고 개성 넘치는 매력. 자유분방하고 강한 개성으로 당신만의 매력을 뽐내요.'
+                        },
+                        skeleton: {
+                            emoji: '💀',
+                            name: '해골상',
+                            description: '하얀 뼈의 깔끔한 매력. 단순하면서도 강렬한 인상으로 미니멀한 카리스마를 보여줘요.'
+                        },
+                        bat: {
+                            emoji: '🦇',
+                            name: '박쥐상',
+                            description: '어둠 속을 자유롭게 날아다니는 매력. 신비롭고 야생적인 분위기로 독특함을 연출해요.'
+                        },
+                        alien: {
+                            emoji: '👽',
+                            name: '외계인상',
+                            description: '신비롭고 미래적인 매력. 독특한 감성과 시각으로 특별한 존재감을 가진 타입이에요.'
+                        }
+                    }
+                },
+                food: {
+                    title: '🍕 음식상 분석기',
+                    subtitle: 'AI가 분석하는 나의 음식상은? 맛있는 당신의 매력을 확인해보세요!',
+                    modeText: '🍕 음식상',
+                    analyzeText: '음식상 분석하기',
+                    loadingText: 'AI가 당신의 음식상을 분석하고 있습니다...',
+                    resultTitle: '🍽️ 당신의 음식상 분석 결과',
+                    shareText: '음식상',
+                    data: {
+                        dumpling: {
+                            emoji: '🥟',
+                            name: '만두상',
+                            description: '따뜻하고 포근한 매력. 동글동글하고 귀여운 인상으로 모든 사람을 편안하게 만들어줘요.'
+                        },
+                        hotdog: {
+                            emoji: '🌭',
+                            name: '핫도그상',
+                            description: '활발하고 에너지 넘치는 매력. 친근하고 밝은 분위기로 분위기 메이커 역할을 해요.'
+                        },
+                        pumpkin: {
+                            emoji: '🎃',
+                            name: '호박상',
+                            description: '따뜻하고 온화한 매력. 건강하고 자연스러운 아름다움이 매력적이에요.'
+                        },
+                        chicken: {
+                            emoji: '🍗',
+                            name: '치킨상',
+                            description: '실용적이고 믿음직한 매력. 신뢰할 수 있고 정겨운 분위기로 많은 사람들의 사랑을 받아요.'
+                        },
+                        pizza: {
+                            emoji: '🍕',
+                            name: '피자상',
+                            description: '다채롭고 매력적인 면모. 여러 가지 매력을 가진 강한 개성으로 눈에 띄는 존재에요.'
+                        },
+                        carrot: {
+                            emoji: '🥕',
+                            name: '당근상',
+                            description: '건강하고 활기찬 매력. 밝고 긍정적인 에너지로 주변을 밝게 만들어줘요.'
+                        }
+                    }
+                },
+                common: {
+                    uploadText: '사진을 업로드하세요',
+                    uploadSubtext: 'JPG, PNG 파일 지원 (최대 10MB)',
+                    selectPhotoText: '사진 선택하기',
+                    shareButtonText: '사이트 공유하기',
+                    resetText: '다시 분석하기',
+                    footerText: '* 이 서비스는 재미를 위한 것으로, 과학적 근거에 기반하지 않습니다.',
+                    fileSizeError: '파일 크기는 10MB 이하여야 합니다.',
+                    fileTypeError: '이미지 파일만 업로드할 수 있습니다.',
+                    fileReadError: '파일을 읽는 중 오류가 발생했습니다.',
+                    uploadFirstError: '먼저 이미지를 업로드해주세요.',
+                    linkCopied: '링크가 클립보드에 복사되었습니다!'
+                }
+            },
+            en: {
+                animal: {
+                    title: '🐾 Animal Face Analyzer',
+                    subtitle: 'Discover your animal face type with AI! Upload your photo and find out!',
+                    modeText: '🐾 Animal',
+                    analyzeText: 'Analyze Animal Face',
+                    loadingText: 'AI is analyzing your animal face type...',
+                    resultTitle: '🎉 Your Animal Face Analysis Result',
+                    shareText: 'Animal Face',
+                    data: {
+                        cat: {
+                            emoji: '🐱',
+                            name: 'Cat Face',
+                            description: 'Mysterious and elegant charm. Independent yet warm charisma that captivates everyone.'
+                        },
+                        dog: {
+                            emoji: '🐶',
+                            name: 'Dog Face',
+                            description: 'Friendly and lively charm. Bright and positive energy that is loved by everyone.'
+                        },
+                        rabbit: {
+                            emoji: '🐰',
+                            name: 'Rabbit Face',
+                            description: 'Cute and pure charm. Clean and neat impression that captures many hearts.'
+                        },
+                        fox: {
+                            emoji: '🦊',
+                            name: 'Fox Face',
+                            description: 'Intelligent and sophisticated charm. Sharp yet captivating eyes that leave a lasting impression.'
+                        },
+                        bear: {
+                            emoji: '🐻',
+                            name: 'Bear Face',
+                            description: 'Reliable and cozy charm. Trustworthy and warm atmosphere that makes people comfortable.'
+                        },
+                        hamster: {
+                            emoji: '🐹',
+                            name: 'Hamster Face',
+                            description: 'Small and adorable charm. Round eyes and chubby cheeks that melt hearts.'
+                        }
+                    }
+                },
+                ghost: {
+                    title: '👻 Ghost Face Analyzer',
+                    subtitle: 'Discover your mysterious ghost face type with AI! Unveil your supernatural charm!',
+                    modeText: '👻 Ghost',
+                    analyzeText: 'Analyze Ghost Face',
                     loadingText: 'AI is analyzing your ghost face type...',
                     resultTitle: '🎃 Your Ghost Face Analysis Result',
                     shareText: 'Ghost Face',
@@ -708,41 +971,106 @@
             document.getElementById('footerText').textContent = common.footerText;
         }
 
+        // 개선된 파일 입력 이벤트 핸들러
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
+            
+            addDebugInfo(`파일 선택됨: ${file ? file.name : 'null'}`);
+            
             if (file) {
                 const common = translations[currentLanguage].common;
+                
+                addDebugInfo(`파일 크기: ${file.size} bytes, 타입: ${file.type}`);
                 
                 // 파일 크기 체크 (10MB 제한)
                 if (file.size > 10 * 1024 * 1024) {
                     alert(common.fileSizeError);
+                    addDebugInfo('파일 크기 오류');
                     return;
                 }
                 
                 // 파일 형식 체크
                 if (!file.type.startsWith('image/')) {
                     alert(common.fileTypeError);
+                    addDebugInfo('파일 타입 오류');
                     return;
                 }
                 
+                // 에러 메시지 숨기기
+                hideImageError();
+                
+                // 로딩 표시
+                showImageLoading();
+                
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
-                    uploadedImage = e.target.result;
-                    const previewImg = document.getElementById('previewImage');
-                    previewImg.src = uploadedImage;
-                    previewImg.style.display = 'block';
-                    
-                    // 화면 전환
-                    document.getElementById('uploadSection').style.display = 'none';
-                    document.getElementById('previewSection').style.display = 'block';
-                    document.getElementById('analysisSection').style.display = 'none';
+                    addDebugInfo('FileReader onload 시작');
+                    try {
+                        uploadedImage = e.target.result;
+                        addDebugInfo(`이미지 데이터 길이: ${uploadedImage.length}`);
+                        
+                        const previewImg = document.getElementById('previewImage');
+                        
+                        // 이미지 로드 이벤트 설정
+                        previewImg.onload = function() {
+                            addDebugInfo('이미지 onload 성공');
+                            hideImageLoading();
+                            previewImg.style.display = 'block';
+                            
+                            // 화면 전환
+                            document.getElementById('uploadSection').style.display = 'none';
+                            document.getElementById('previewSection').style.display = 'block';
+                            document.getElementById('analysisSection').style.display = 'none';
+                            
+                            addDebugInfo('화면 전환 완료');
+                        };
+                        
+                        previewImg.onerror = function() {
+                            addDebugInfo('이미지 oneerror 발생');
+                            hideImageLoading();
+                            showImageError();
+                        };
+                        
+                        // 이미지 src 설정
+                        addDebugInfo('이미지 src 설정 시작');
+                        previewImg.src = uploadedImage;
+                        
+                    } catch (error) {
+                        addDebugInfo(`이미지 처리 오류: ${error.message}`);
+                        hideImageLoading();
+                        showImageError();
+                    }
                 };
-                reader.onerror = function() {
+                
+                reader.onerror = function(error) {
+                    addDebugInfo(`FileReader 오류: ${error}`);
+                    hideImageLoading();
+                    showImageError();
                     alert(translations[currentLanguage].common.fileReadError);
                 };
+                
+                addDebugInfo('FileReader 시작');
                 reader.readAsDataURL(file);
             }
         });
+
+        // 이미지 로딩 표시 함수들
+        function showImageLoading() {
+            document.getElementById('imageLoading').style.display = 'block';
+        }
+
+        function hideImageLoading() {
+            document.getElementById('imageLoading').style.display = 'none';
+        }
+
+        function showImageError() {
+            document.getElementById('imageError').style.display = 'block';
+        }
+
+        function hideImageError() {
+            document.getElementById('imageError').style.display = 'none';
+        }
 
         function analyzeImage() {
             if (!uploadedImage) {
@@ -750,13 +1078,17 @@
                 return;
             }
             
+            addDebugInfo('분석 시작');
+            
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('analysisSection').style.display = 'none';
 
             setTimeout(() => {
+                addDebugInfo('분석 결과 생성 중');
                 const results = generateMockResults();
                 currentResults = results; // 결과를 저장
+                addDebugInfo(`분석 완료, 결과 개수: ${results.length}`);
                 displayResults(results);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('analysisSection').style.display = 'block';
@@ -805,6 +1137,8 @@
             const currentData = translations[currentLanguage][currentMode].data;
             resultsContainer.innerHTML = '';
 
+            addDebugInfo(`결과 표시 시작, 항목 수: ${results.length}`);
+
             results.forEach((result, index) => {
                 const item = currentData[result.category];
                 const percentage = Math.round(result.percentage);
@@ -825,6 +1159,8 @@
                 
                 resultsContainer.appendChild(resultElement);
             });
+            
+            addDebugInfo('결과 표시 완료');
         }
 
         function shareResult() {
@@ -851,27 +1187,40 @@
         }
 
         function resetAnalysis() {
+            addDebugInfo('리셋 시작');
+            
             // 모든 섹션 초기화
             document.getElementById('uploadSection').style.display = 'block';
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('analysisSection').style.display = 'none';
             document.getElementById('loading').style.display = 'none';
             
+            // 에러 및 로딩 상태 초기화
+            hideImageError();
+            hideImageLoading();
+            
             // 파일 입력 초기화
             document.getElementById('fileInput').value = '';
             
             // 이미지 데이터 초기화
             uploadedImage = null;
-            currentResults = null; // 결과도 초기화
+            currentResults = null;
             
             // 미리보기 이미지 초기화
             const previewImg = document.getElementById('previewImage');
             previewImg.src = '';
             previewImg.style.display = 'none';
+            previewImg.onload = null;
+            previewImg.onerror = null;
+            
+            addDebugInfo('리셋 완료');
         }
 
         // 초기 텍스트 설정
         updateAllTexts();
+        
+        // 페이지 로드시 디버그 정보 초기화
+        addDebugInfo('페이지 로드 완료');
     </script>
 </body>
 </html>
