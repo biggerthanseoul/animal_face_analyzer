@@ -459,6 +459,7 @@
         let currentMode = 'animal';
         let currentLanguage = 'ko';
         let uploadedImage = null;
+        let currentResults = null; // 현재 분석 결과를 저장
 
         const translations = {
             ko: {
@@ -752,10 +753,9 @@
             // 모든 텍스트 업데이트
             updateAllTexts();
             
-            // 분석 결과가 있으면 새로 표시
-            if (document.getElementById('analysisSection').style.display === 'block') {
-                const results = generateMockResults();
-                displayResults(results);
+            // 분석 결과가 있으면 기존 결과를 언어만 바꿔서 표시
+            if (document.getElementById('analysisSection').style.display === 'block' && currentResults) {
+                displayResults(currentResults);
             }
         }
 
@@ -860,6 +860,7 @@
 
             setTimeout(() => {
                 const results = generateMockResults();
+                currentResults = results; // 결과를 저장
                 displayResults(results);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('analysisSection').style.display = 'block';
@@ -965,6 +966,7 @@
             
             // 이미지 데이터 초기화
             uploadedImage = null;
+            currentResults = null; // 결과도 초기화
             
             // 미리보기 이미지 초기화
             const previewImg = document.getElementById('previewImage');
