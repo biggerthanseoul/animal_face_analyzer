@@ -203,6 +203,7 @@
             padding: 30px;
             margin-bottom: 30px;
             border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
         }
 
         .preview-image {
@@ -212,6 +213,7 @@
             margin: 0 auto 20px;
             display: block;
             box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            object-fit: cover;
         }
 
         .analysis-section {
@@ -790,9 +792,18 @@
             // 텍스트 업데이트
             updateAllTexts();
             
-            // 분석 결과가 있으면 새로 분석
+            // 이미지가 업로드되어 있고 아직 분석되지 않은 상태라면 미리보기 상태 유지
+            if (uploadedImage && document.getElementById('previewSection').style.display !== 'none') {
+                // 미리보기 상태 유지하면서 버튼 텍스트만 업데이트
+                return;
+            }
+            
+            // 분석 결과가 있으면 새로 분석하지 않고 기존 결과를 새 모드로 변환
             if (document.getElementById('analysisSection').style.display === 'block') {
-                analyzeImage();
+                // 새로운 모드로 가짜 결과 생성해서 표시
+                const newResults = generateMockResults();
+                currentResults = newResults;
+                displayResults(newResults);
             }
         }
 
@@ -844,12 +855,12 @@
                     uploadedImage = e.target.result;
                     const previewImg = document.getElementById('previewImage');
                     previewImg.src = uploadedImage;
-                    previewImg.style.display = 'block';
                     
                     // 화면 전환
                     document.getElementById('uploadSection').style.display = 'none';
                     document.getElementById('previewSection').style.display = 'block';
                     document.getElementById('analysisSection').style.display = 'none';
+                    document.getElementById('loading').style.display = 'none';
                 };
                 reader.onerror = function() {
                     alert(translations[currentLanguage].common.fileReadError);
@@ -981,7 +992,6 @@
             // 미리보기 이미지 초기화
             const previewImg = document.getElementById('previewImage');
             previewImg.src = '';
-            previewImg.style.display = 'none';
         }
 
         // 초기 텍스트 설정
