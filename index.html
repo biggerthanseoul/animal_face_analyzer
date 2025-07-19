@@ -271,30 +271,18 @@
             text-align: center;
         }
 
-        /* 이미지 컨테이너 추가 - 이미지 표시를 위한 중요한 수정 */
+        /* 이미지 컨테이너 - 단순화 */
         .image-container {
-            position: relative;
-            display: inline-block;
             margin-bottom: 20px;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            background: rgba(255,255,255,0.1);
-            padding: 10px;
+            text-align: center;
         }
 
         .preview-image {
-            max-width: 100%;
-            max-height: 400px;
-            width: auto;
-            height: auto;
-            border-radius: 10px;
-            display: block;
-            /* 이미지가 로드되지 않았을 때를 위한 스타일 */
-            min-width: 200px;
-            min-height: 200px;
-            object-fit: cover;
-            background: rgba(255,255,255,0.1);
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.3);
         }
 
         /* 이미지 로딩 상태 표시 */
@@ -557,11 +545,8 @@
         </div>
 
         <div class="preview-section" id="previewSection">
-            <div class="debug-info" id="debugInfo">디버그 정보가 여기에 표시됩니다.</div>
-            <div class="image-error" id="imageError">이미지를 불러오는 중 오류가 발생했습니다.</div>
             <div class="image-container">
-                <div class="image-loading" id="imageLoading">이미지 로딩 중...</div>
-                <img id="previewImage" class="preview-image" alt="미리보기" style="display: none;">
+                <img id="previewImage" class="preview-image" alt="미리보기">
             </div>
             <div style="text-align: center;">
                 <button class="btn" onclick="analyzeImage()">
@@ -971,124 +956,55 @@
             document.getElementById('footerText').textContent = common.footerText;
         }
 
-        // 개선된 파일 입력 이벤트 핸들러
+        // 단순화된 파일 입력 이벤트 핸들러
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             
-            addDebugInfo(`파일 선택됨: ${file ? file.name : 'null'}`);
+            if (!file) return;
             
-            if (file) {
-                const common = translations[currentLanguage].common;
-                
-                addDebugInfo(`파일 크기: ${file.size} bytes, 타입: ${file.type}`);
-                
-                // 파일 크기 체크 (10MB 제한)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert(common.fileSizeError);
-                    addDebugInfo('파일 크기 오류');
-                    return;
-                }
-                
-                // 파일 형식 체크
-                if (!file.type.startsWith('image/')) {
-                    alert(common.fileTypeError);
-                    addDebugInfo('파일 타입 오류');
-                    return;
-                }
-                
-                // 에러 메시지 숨기기
-                hideImageError();
-                
-                // 로딩 표시
-                showImageLoading();
-                
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    addDebugInfo('FileReader onload 시작');
-                    try {
-                        uploadedImage = e.target.result;
-                        addDebugInfo(`이미지 데이터 길이: ${uploadedImage.length}`);
-                        
-                        const previewImg = document.getElementById('previewImage');
-                        
-                        // 이미지 로드 이벤트 설정
-                        previewImg.onload = function() {
-                            addDebugInfo('이미지 onload 성공');
-                            hideImageLoading();
-                            previewImg.style.display = 'block';
-                            
-                            // 화면 전환
-                            document.getElementById('uploadSection').style.display = 'none';
-                            document.getElementById('previewSection').style.display = 'block';
-                            document.getElementById('analysisSection').style.display = 'none';
-                            
-                            addDebugInfo('화면 전환 완료');
-                        };
-                        
-                        previewImg.onerror = function() {
-                            addDebugInfo('이미지 oneerror 발생');
-                            hideImageLoading();
-                            showImageError();
-                        };
-                        
-                        // 이미지 src 설정
-                        addDebugInfo('이미지 src 설정 시작');
-                        previewImg.src = uploadedImage;
-                        
-                    } catch (error) {
-                        addDebugInfo(`이미지 처리 오류: ${error.message}`);
-                        hideImageLoading();
-                        showImageError();
-                    }
-                };
-                
-                reader.onerror = function(error) {
-                    addDebugInfo(`FileReader 오류: ${error}`);
-                    hideImageLoading();
-                    showImageError();
-                    alert(translations[currentLanguage].common.fileReadError);
-                };
-                
-                addDebugInfo('FileReader 시작');
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // 이미지 로딩 표시 함수들
-        function showImageLoading() {
-            document.getElementById('imageLoading').style.display = 'block';
-        }
-
-        function hideImageLoading() {
-            document.getElementById('imageLoading').style.display = 'none';
-        }
-
-        function showImageError() {
-            document.getElementById('imageError').style.display = 'block';
-        }
-
-        function hideImageError() {
-            document.getElementById('imageError').style.display = 'none';
-        }
-
-        function analyzeImage() {
-            if (!uploadedImage) {
-                alert(translations[currentLanguage].common.uploadFirstError);
+            // 기본 유효성 검사
+            if (file.size > 10 * 1024 * 1024) {
+                alert('파일 크기는 10MB 이하여야 합니다.');
                 return;
             }
             
-            addDebugInfo('분석 시작');
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드할 수 있습니다.');
+                return;
+            }
+            
+            // FileReader로 이미지 읽기
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // 이미지 데이터 저장
+                uploadedImage = e.target.result;
+                
+                // 미리보기 이미지에 설정
+                const previewImg = document.getElementById('previewImage');
+                previewImg.src = uploadedImage;
+                
+                // 화면 전환
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+                document.getElementById('analysisSection').style.display = 'none';
+            };
+            
+            reader.readAsDataURL(file);
+        });
+
+        function analyzeImage() {
+            if (!uploadedImage) {
+                alert('먼저 이미지를 업로드해주세요.');
+                return;
+            }
             
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('analysisSection').style.display = 'none';
 
             setTimeout(() => {
-                addDebugInfo('분석 결과 생성 중');
                 const results = generateMockResults();
-                currentResults = results; // 결과를 저장
-                addDebugInfo(`분석 완료, 결과 개수: ${results.length}`);
+                currentResults = results;
                 displayResults(results);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('analysisSection').style.display = 'block';
@@ -1137,8 +1053,6 @@
             const currentData = translations[currentLanguage][currentMode].data;
             resultsContainer.innerHTML = '';
 
-            addDebugInfo(`결과 표시 시작, 항목 수: ${results.length}`);
-
             results.forEach((result, index) => {
                 const item = currentData[result.category];
                 const percentage = Math.round(result.percentage);
@@ -1159,8 +1073,6 @@
                 
                 resultsContainer.appendChild(resultElement);
             });
-            
-            addDebugInfo('결과 표시 완료');
         }
 
         function shareResult() {
@@ -1181,39 +1093,9 @@
             } else {
                 const text = `${shareText} ` + window.location.href;
                 navigator.clipboard.writeText(text).then(() => {
-                    alert(translations[currentLanguage].common.linkCopied);
+                    alert('링크가 클립보드에 복사되었습니다!');
                 });
             }
-        }
-
-        function resetAnalysis() {
-            addDebugInfo('리셋 시작');
-            
-            // 모든 섹션 초기화
-            document.getElementById('uploadSection').style.display = 'block';
-            document.getElementById('previewSection').style.display = 'none';
-            document.getElementById('analysisSection').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
-            
-            // 에러 및 로딩 상태 초기화
-            hideImageError();
-            hideImageLoading();
-            
-            // 파일 입력 초기화
-            document.getElementById('fileInput').value = '';
-            
-            // 이미지 데이터 초기화
-            uploadedImage = null;
-            currentResults = null;
-            
-            // 미리보기 이미지 초기화
-            const previewImg = document.getElementById('previewImage');
-            previewImg.src = '';
-            previewImg.style.display = 'none';
-            previewImg.onload = null;
-            previewImg.onerror = null;
-            
-            addDebugInfo('리셋 완료');
         }
 
         // 초기 텍스트 설정
