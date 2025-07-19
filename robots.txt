@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://biggerthanseoul.github.io/animal_face_analyzer/sitemap.xml
