@@ -1085,20 +1085,46 @@
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // 파일 크기 체크 (10MB 제한)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('파일 크기는 10MB 이하여야 합니다.');
+                    return;
+                }
+                
+                // 파일 형식 체크
+                if (!file.type.startsWith('image/')) {
+                    alert('이미지 파일만 업로드 가능합니다.');
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     uploadedImage = e.target.result;
-                    document.getElementById('previewImage').src = uploadedImage;
+                    const previewImg = document.getElementById('previewImage');
+                    previewImg.src = uploadedImage;
+                    previewImg.style.display = 'block';
+                    
+                    // 화면 전환
                     document.getElementById('uploadSection').style.display = 'none';
                     document.getElementById('previewSection').style.display = 'block';
+                    document.getElementById('analysisSection').style.display = 'none';
+                };
+                reader.onerror = function() {
+                    alert('파일을 읽는데 오류가 발생했습니다.');
                 };
                 reader.readAsDataURL(file);
             }
         });
 
         function analyzeImage() {
+            if (!uploadedImage) {
+                alert('먼저 이미지를 업로드해주세요.');
+                return;
+            }
+            
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('loading').style.display = 'block';
+            document.getElementById('analysisSection').style.display = 'none';
 
             setTimeout(() => {
                 const results = generateMockResults();
@@ -1189,11 +1215,22 @@
         }
 
         function resetAnalysis() {
+            // 모든 섹션 초기화
             document.getElementById('uploadSection').style.display = 'block';
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('analysisSection').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+            
+            // 파일 입력 초기화
             document.getElementById('fileInput').value = '';
+            
+            // 이미지 데이터 초기화
             uploadedImage = null;
+            
+            // 미리보기 이미지 초기화
+            const previewImg = document.getElementById('previewImage');
+            previewImg.src = '';
+            previewImg.style.display = 'none';
         }
     </script>
 </body>
