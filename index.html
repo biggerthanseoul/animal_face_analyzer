@@ -39,10 +39,40 @@
             margin-bottom: 30px;
         }
 
-        .mode-switcher {
+        .controls {
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 20px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 5px;
+        }
+
+        .lang-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-button.active {
+            background: rgba(255,255,255,0.4);
+            box-shadow: 0 2px 10px rgba(255,255,255,0.3);
+        }
+
+        .mode-switcher {
+            display: flex;
+            gap: 5px;
         }
 
         .mode-button {
@@ -50,7 +80,6 @@
             border: none;
             color: white;
             padding: 15px 30px;
-            margin: 0 5px;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -64,7 +93,7 @@
             transform: translateY(-2px);
         }
 
-        .mode-button:hover {
+        .mode-button:hover, .lang-button:hover {
             background: rgba(255,255,255,0.25);
         }
 
@@ -211,597 +240,6 @@
             height: 60px;
         }
 
-        /* 저승사자 캐릭터 - 이미지 기반 정확한 재현 */
-        .reaper-character {
-            width: 48px;
-            height: 48px;
-            position: relative;
-            display: inline-block;
-            transform: scale(1.0);
-        }
-
-        /* 삿갓 */
-        .reaper-hat {
-            width: 48px;
-            height: 14px;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
-            border-radius: 50%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-            border: 1px solid #1a252f;
-        }
-
-        .reaper-hat::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 16px;
-            height: 10px;
-            background: linear-gradient(to bottom, #2c3e50, #34495e);
-            border-radius: 2px 2px 0 0;
-            border: 1px solid #1a252f;
-        }
-
-        /* 얼굴 */
-        .reaper-face {
-            width: 24px;
-            height: 26px;
-            background: #95a5a6;
-            border-radius: 45%;
-            position: absolute;
-            top: 10px;
-            left: 12px;
-            border: 1.5px solid #2c3e50;
-        }
-
-        /* 눈썹 */
-        .reaper-eyebrows::before,
-        .reaper-eyebrows::after {
-            content: '';
-            position: absolute;
-            top: 16px;
-            width: 5px;
-            height: 1px;
-            background: #2c3e50;
-        }
-
-        .reaper-eyebrows::before {
-            left: 15px;
-        }
-
-        .reaper-eyebrows::after {
-            left: 25px;
-        }
-
-        /* 눈 - 반달 황색 */
-        .reaper-eyes::before,
-        .reaper-eyes::after {
-            content: '';
-            position: absolute;
-            top: 18px;
-            width: 5px;
-            height: 4px;
-            background: #f39c12;
-            border-radius: 50% 50% 0 0;
-            border: 1px solid #2c3e50;
-            border-bottom: 1.5px solid #2c3e50;
-        }
-
-        .reaper-eyes::before {
-            left: 15px;
-        }
-
-        .reaper-eyes::after {
-            left: 25px;
-        }
-
-        /* 입 */
-        .reaper-mouth::before {
-            content: '';
-            position: absolute;
-            top: 28px;
-            left: 20px;
-            width: 6px;
-            height: 1px;
-            background: #2c3e50;
-        }
-
-        /* 귀 */
-        .reaper-ears::before,
-        .reaper-ears::after {
-            content: '';
-            position: absolute;
-            top: 20px;
-            width: 3px;
-            height: 4px;
-            background: #95a5a6;
-            border-radius: 50%;
-            border: 1px solid #2c3e50;
-        }
-
-        .reaper-ears::before {
-            left: 9px;
-        }
-
-        .reaper-ears::after {
-            right: 9px;
-        }
-
-        /* 옷깃 */
-        .reaper-collar {
-            position: absolute;
-            top: 34px;
-            left: 16px;
-            width: 16px;
-            height: 6px;
-            background: #34495e;
-            border-radius: 2px 2px 0 0;
-            border: 1px solid #2c3e50;
-        }
-
-        /* 갈색 끈 */
-        .reaper-tie {
-            position: absolute;
-            top: 36px;
-            left: 21px;
-            width: 6px;
-            height: 3px;
-            background: #8b4513;
-            border-radius: 1px;
-        }
-
-        /* 처녀귀신 캐릭터 - 더 정확한 버전 */
-        .ghost-character {
-            width: 48px;
-            height: 48px;
-            position: relative;
-            display: inline-block;
-            transform: scale(1.0);
-        }
-
-        /* 머리카락 - 더 길고 자연스럽게 */
-        .ghost-hair {
-            position: absolute;
-            top: 0px;
-            left: 6px;
-            width: 36px;
-            height: 22px;
-            background: #1a252f;
-            border-radius: 50% 50% 20% 20%;
-            overflow: hidden;
-        }
-
-        /* 머리카락 윗부분 */
-        .ghost-hair::before {
-            content: '';
-            position: absolute;
-            top: -3px;
-            left: 3px;
-            width: 30px;
-            height: 15px;
-            background: #2c3e50;
-            border-radius: 50%;
-        }
-
-        /* 얼굴 - 더 창백하고 파란색 */
-        .ghost-face {
-            width: 26px;
-            height: 30px;
-            background: #cce7ff;
-            border-radius: 50% 50% 45% 45%;
-            position: absolute;
-            top: 10px;
-            left: 11px;
-            border: 1.5px solid #85929e;
-        }
-
-        /* 눈 - 더 큰 빨간 눈동자 */
-        .ghost-eyes::before,
-        .ghost-eyes::after {
-            content: '';
-            position: absolute;
-            top: 17px;
-            width: 6px;
-            height: 6px;
-            background: #ffffff;
-            border-radius: 50%;
-            border: 2px solid #c0392b;
-        }
-
-        .ghost-eyes::before {
-            left: 14px;
-        }
-
-        .ghost-eyes::after {
-            left: 26px;
-        }
-
-        /* 눈동자 */
-        .ghost-pupils::before,
-        .ghost-pupils::after {
-            content: '';
-            position: absolute;
-            top: 19px;
-            width: 3px;
-            height: 3px;
-            background: #e74c3c;
-            border-radius: 50%;
-        }
-
-        .ghost-pupils::before {
-            left: 16px;
-        }
-
-        .ghost-pupils::after {
-            left: 28px;
-        }
-
-        /* 입 - 더 작고 놀란 표정 */
-        .ghost-mouth::before {
-            content: '';
-            position: absolute;
-            top: 28px;
-            left: 21px;
-            width: 4px;
-            height: 4px;
-            background: #e74c3c;
-            border-radius: 50%;
-        }
-
-        /* 손 - 더 정확한 위치와 모양 */
-        .ghost-hands::before,
-        .ghost-hands::after {
-            content: '';
-            position: absolute;
-            top: 32px;
-            width: 8px;
-            height: 10px;
-            background: #cce7ff;
-            border-radius: 60% 60% 40% 40%;
-            border: 1px solid #85929e;
-        }
-
-        .ghost-hands::before {
-            left: 4px;
-            transform: rotate(-15deg);
-        }
-
-        .ghost-hands::after {
-            right: 4px;
-            transform: rotate(15deg);
-        }
-
-        /* 강시 캐릭터 - 더 정확한 버전 */
-        .jiangshi-character {
-            width: 48px;
-            height: 48px;
-            position: relative;
-            display: inline-block;
-            transform: scale(1.0);
-        }
-
-        /* 모자 - 더 정확한 검은 모자 */
-        .jiangshi-hat {
-            width: 32px;
-            height: 8px;
-            background: linear-gradient(to bottom, #2c3e50, #34495e);
-            border-radius: 2px;
-            position: absolute;
-            top: 3px;
-            left: 8px;
-            border: 1px solid #1a252f;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* 부적 - 더 정확한 크기와 위치 */
-        .jiangshi-charm {
-            width: 12px;
-            height: 14px;
-            background: linear-gradient(to bottom, #f1c40f, #f39c12);
-            border: 2px solid #e74c3c;
-            position: absolute;
-            top: -2px;
-            left: 18px;
-            font-size: 7px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #c0392b;
-            font-weight: bold;
-            font-family: serif;
-            border-radius: 1px;
-        }
-
-        /* 얼굴 - 더 정확한 파란색과 크기 */
-        .jiangshi-face {
-            width: 26px;
-            height: 28px;
-            background: #85c1e9;
-            border-radius: 50%;
-            position: absolute;
-            top: 10px;
-            left: 11px;
-            border: 2px solid #2c3e50;
-        }
-
-        /* 눈 - 더 큰 동그란 눈 */
-        .jiangshi-eyes::before,
-        .jiangshi-eyes::after {
-            content: '';
-            position: absolute;
-            top: 16px;
-            width: 6px;
-            height: 6px;
-            background: #ffffff;
-            border-radius: 50%;
-            border: 1.5px solid #2c3e50;
-        }
-
-        .jiangshi-eyes::before {
-            left: 15px;
-        }
-
-        .jiangshi-eyes::after {
-            left: 25px;
-        }
-
-        /* 눈동자 */
-        .jiangshi-pupils::before,
-        .jiangshi-pupils::after {
-            content: '';
-            position: absolute;
-            top: 18px;
-            width: 2px;
-            height: 2px;
-            background: #2c3e50;
-            border-radius: 50%;
-        }
-
-        .jiangshi-pupils::before {
-            left: 17px;
-        }
-
-        .jiangshi-pupils::after {
-            left: 27px;
-        }
-
-        /* 입 - 더 작은 입 */
-        .jiangshi-mouth::before {
-            content: '';
-            position: absolute;
-            top: 26px;
-            left: 21px;
-            width: 4px;
-            height: 2px;
-            background: #e74c3c;
-            border-radius: 50%;
-        }
-
-        /* 볼 - 더 자연스러운 색상 */
-        .jiangshi-cheeks::before,
-        .jiangshi-cheeks::after {
-            content: '';
-            position: absolute;
-            top: 22px;
-            width: 4px;
-            height: 4px;
-            background: #7fb3d3;
-            border-radius: 50%;
-            opacity: 0.6;
-        }
-
-        .jiangshi-cheeks::before {
-            left: 12px;
-        }
-
-        .jiangshi-cheeks::after {
-            left: 30px;
-        }
-
-        /* 목걸이 - 더 정확한 빨간 구슬들 */
-        .jiangshi-necklace {
-            position: absolute;
-            top: 36px;
-            left: 16px;
-            width: 16px;
-            height: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .jiangshi-necklace::before,
-        .jiangshi-necklace::after {
-            content: '';
-            width: 3px;
-            height: 3px;
-            background: #e74c3c;
-            border-radius: 50%;
-            border: 0.5px solid #c0392b;
-        }
-
-        /* 추가 구슬들 */
-        .jiangshi-beads::before,
-        .jiangshi-beads::after {
-            content: '';
-            position: absolute;
-            top: 36px;
-            width: 3px;
-            height: 3px;
-            background: #e74c3c;
-            border-radius: 50%;
-            border: 0.5px solid #c0392b;
-        }
-
-        .jiangshi-beads::before {
-            left: 19px;
-        }
-
-        .jiangshi-beads::after {
-            left: 26px;
-        }
-
-        /* 처녀귀신 캐릭터 CSS */
-        .ghost-character {
-            width: 50px;
-            height: 60px;
-            position: relative;
-            display: inline-block;
-        }
-
-        /* 얼굴 */
-        .ghost-face {
-            width: 30px;
-            height: 35px;
-            background: #d6eaf8;
-            border-radius: 50% 50% 45% 45%;
-            position: absolute;
-            top: 8px;
-            left: 10px;
-            border: 2px solid #5d6d7e;
-        }
-
-        /* 머리카락 */
-        .ghost-hair {
-            position: absolute;
-            top: 3px;
-            left: 8px;
-            width: 34px;
-            height: 20px;
-            background: #2c3e50;
-            border-radius: 50% 50% 0 0;
-        }
-
-        /* 눈 */
-        .ghost-eyes {
-            position: absolute;
-            top: 15px;
-            left: 6px;
-            width: 18px;
-            height: 8px;
-        }
-
-        .ghost-eyes::before,
-        .ghost-eyes::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #ffffff;
-            border-radius: 50%;
-            border: 2px solid #e74c3c;
-        }
-
-        .ghost-eyes::before {
-            left: 0;
-        }
-
-        .ghost-eyes::after {
-            right: 0;
-        }
-
-        /* 입 */
-        .ghost-mouth {
-            position: absolute;
-            top: 25px;
-            left: 12px;
-            width: 6px;
-            height: 4px;
-            background: #e74c3c;
-            border-radius: 50%;
-        }
-
-        /* 강시 캐릭터 CSS */
-        .jiangshi-character {
-            width: 50px;
-            height: 60px;
-            position: relative;
-            display: inline-block;
-        }
-
-        /* 모자 */
-        .jiangshi-hat {
-            width: 35px;
-            height: 12px;
-            background: #2c3e50;
-            border-radius: 3px;
-            position: absolute;
-            top: 3px;
-            left: 7px;
-        }
-
-        /* 부적 */
-        .jiangshi-charm {
-            width: 12px;
-            height: 15px;
-            background: #f1c40f;
-            border: 1px solid #e74c3c;
-            position: absolute;
-            top: 0px;
-            left: 19px;
-            font-size: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        /* 얼굴 */
-        .jiangshi-face {
-            width: 30px;
-            height: 30px;
-            background: #aed6f1;
-            border-radius: 50%;
-            position: absolute;
-            top: 15px;
-            left: 10px;
-            border: 2px solid #34495e;
-        }
-
-        /* 눈 */
-        .jiangshi-eyes {
-            position: absolute;
-            top: 8px;
-            left: 6px;
-            width: 18px;
-            height: 6px;
-        }
-
-        .jiangshi-eyes::before,
-        .jiangshi-eyes::after {
-            content: '';
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            background: #ffffff;
-            border-radius: 50%;
-            border: 1px solid #34495e;
-        }
-
-        .jiangshi-eyes::before {
-            left: 2px;
-        }
-
-        .jiangshi-eyes::after {
-            right: 2px;
-        }
-
-        /* 입 */
-        .jiangshi-mouth {
-            position: absolute;
-            top: 16px;
-            left: 12px;
-            width: 6px;
-            height: 3px;
-            background: #e74c3c;
-            border-radius: 50%;
-        }
-
         .result-info {
             flex: 1;
         }
@@ -912,15 +350,30 @@
                 padding: 12px 20px;
                 font-size: 0.9rem;
             }
+
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body class="animal-theme">
     <div class="container">
         <div class="header">
-            <div class="mode-switcher">
-                <button class="mode-button active" onclick="switchMode('animal')">🐾 동물상</button>
-                <button class="mode-button" onclick="switchMode('ghost')">👻 마귀상</button>
+            <div class="controls">
+                <div class="language-switcher">
+                    <button class="lang-button active" onclick="switchLanguage('ko')">한국어</button>
+                    <button class="lang-button" onclick="switchLanguage('en')">English</button>
+                </div>
+                <div class="mode-switcher">
+                    <button class="mode-button active" onclick="switchMode('animal')">
+                        <span class="animal-mode-text">🐾 동물상</span>
+                    </button>
+                    <button class="mode-button" onclick="switchMode('ghost')">
+                        <span class="ghost-mode-text">👻 마귀상</span>
+                    </button>
+                </div>
             </div>
             <h1 class="title" id="mainTitle">🐾 동물상 분석기</h1>
             <p class="subtitle" id="mainSubtitle">AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!</p>
@@ -929,12 +382,12 @@
         <div class="upload-section" id="uploadSection">
             <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📷</div>
-                <div class="upload-text">사진을 업로드하세요</div>
-                <div class="upload-subtext">JPG, PNG 파일 지원 (최대 10MB)</div>
+                <div class="upload-text" id="uploadText">사진을 업로드하세요</div>
+                <div class="upload-subtext" id="uploadSubtext">JPG, PNG 파일 지원 (최대 10MB)</div>
             </div>
             <input type="file" id="fileInput" accept="image/*">
             <button class="btn" onclick="document.getElementById('fileInput').click()">
-                사진 선택하기
+                <span id="selectPhotoText">사진 선택하기</span>
             </button>
         </div>
 
@@ -957,100 +410,241 @@
             <div id="results"></div>
             
             <div class="share-section">
-                <button class="btn share-btn" onclick="shareResult()">결과 공유하기</button>
-                <button class="btn" onclick="resetAnalysis()">다시 분석하기</button>
+                <button class="btn share-btn" onclick="shareResult()">
+                    <span id="shareText">결과 공유하기</span>
+                </button>
+                <button class="btn" onclick="resetAnalysis()">
+                    <span id="resetText">다시 분석하기</span>
+                </button>
             </div>
         </div>
 
         <div class="footer">
-            <p>* 이 서비스는 재미를 위한 것으로, 과학적 근거에 기반하지 않습니다.</p>
+            <p id="footerText">* 이 서비스는 재미를 위한 것으로, 과학적 근거에 기반하지 않습니다.</p>
         </div>
     </div>
 
     <script>
         let currentMode = 'animal';
+        let currentLanguage = 'ko';
         let uploadedImage = null;
 
-        const modeData = {
-            animal: {
-                title: '🐾 동물상 분석기',
-                subtitle: 'AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!',
-                analyzeText: '동물상 분석하기',
-                loadingText: 'AI가 당신의 동물상을 분석하고 있습니다...',
-                resultTitle: '🎉 당신의 동물상 분석 결과',
-                data: {
-                    cat: {
-                        emoji: '🐱',
-                        name: '고양이상',
-                        description: '신비롭고 도도한 매력의 소유자. 날카로운 눈매와 우아한 분위기가 특징이에요.'
-                    },
-                    dog: {
-                        emoji: '🐶',
-                        name: '강아지상',
-                        description: '친근하고 따뜻한 매력의 소유자. 순수하고 밝은 에너지가 넘쳐나요.'
-                    },
-                    rabbit: {
-                        emoji: '🐰',
-                        name: '토끼상',
-                        description: '귀엽고 앙증맞은 매력의 소유자. 둥근 눈과 부드러운 인상이 특징이에요.'
-                    },
-                    fox: {
-                        emoji: '🦊',
-                        name: '여우상',
-                        description: '영리하고 매혹적인 매력의 소유자. 세련되고 지적인 분위기가 돋보여요.'
-                    },
-                    bear: {
-                        emoji: '🐻',
-                        name: '곰상',
-                        description: '든든하고 포근한 매력의 소유자. 믿음직하고 안정감 있는 인상이에요.'
-                    },
-                    deer: {
-                        emoji: '🦌',
-                        name: '사슴상',
-                        description: '우아하고 청순한 매력의 소유자. 맑고 깨끗한 분위기가 인상적이에요.'
+        const translations = {
+            ko: {
+                animal: {
+                    title: '🐾 동물상 분석기',
+                    subtitle: 'AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!',
+                    modeText: '🐾 동물상',
+                    analyzeText: '동물상 분석하기',
+                    loadingText: 'AI가 당신의 동물상을 분석하고 있습니다...',
+                    resultTitle: '🎉 당신의 동물상 분석 결과',
+                    shareText: '동물상',
+                    data: {
+                        cat: {
+                            emoji: '🐱',
+                            name: '고양이상',
+                            description: '신비롭고 도도한 매력의 소유자. 날카로운 눈매와 우아한 분위기가 특징이에요.'
+                        },
+                        dog: {
+                            emoji: '🐶',
+                            name: '강아지상',
+                            description: '친근하고 따뜻한 매력의 소유자. 순수하고 밝은 에너지가 넘쳐나요.'
+                        },
+                        rabbit: {
+                            emoji: '🐰',
+                            name: '토끼상',
+                            description: '귀엽고 앙증맞은 매력의 소유자. 둥근 눈과 부드러운 인상이 특징이에요.'
+                        },
+                        fox: {
+                            emoji: '🦊',
+                            name: '여우상',
+                            description: '영리하고 매혹적인 매력의 소유자. 세련되고 지적인 분위기가 돋보여요.'
+                        },
+                        bear: {
+                            emoji: '🐻',
+                            name: '곰상',
+                            description: '든든하고 포근한 매력의 소유자. 믿음직하고 안정감 있는 인상이에요.'
+                        },
+                        deer: {
+                            emoji: '🦌',
+                            name: '사슴상',
+                            description: '우아하고 청순한 매력의 소유자. 맑고 깨끗한 분위기가 인상적이에요.'
+                        }
                     }
+                },
+                ghost: {
+                    title: '👻 마귀상 분석기',
+                    subtitle: 'AI가 분석하는 나의 마귀상은? 귀여운 마귀들 중 어느 쪽일까요?',
+                    modeText: '👻 마귀상',
+                    analyzeText: '마귀상 분석하기',
+                    loadingText: 'AI가 당신의 마귀상을 분석하고 있습니다...',
+                    resultTitle: '🎃 당신의 마귀상 분석 결과',
+                    shareText: '마귀상',
+                    data: {
+                        vampire: {
+                            emoji: '🧛',
+                            name: '뱀파이어상',
+                            description: '검은 망토를 두른 신비로운 매력. 창백한 얼굴과 날카로운 송곳니가 특징인 고혹적인 카리스마예요.'
+                        },
+                        ghost: {
+                            emoji: '👻',
+                            name: '유령상',
+                            description: '긴 검은 머리와 창백한 파란 얼굴의 신비로운 매력. 빨간 눈동자가 인상적인 애절한 아름다움이에요.'
+                        },
+                        zombie: {
+                            emoji: '🧟‍♀️',
+                            name: '좀비상',
+                            description: '엉뚱하고 독특한 매력의 소유자. 자유롭고 개성 강한 분위기가 매력적이에요.'
+                        },
+                        skeleton: {
+                            emoji: '💀',
+                            name: '해골상',
+                            description: '하얀 뼈의 깔끔한 매력. 단순하면서도 강렬한 인상을 주는 미니멀한 카리스마예요.'
+                        },
+                        bat: {
+                            emoji: '🦇',
+                            name: '박쥐상',
+                            description: '어둠 속을 자유롭게 날아다니는 매력. 신비롭고 야성적인 분위기가 독특한 타입이에요.'
+                        },
+                        alien: {
+                            emoji: '👽',
+                            name: '외계인상',
+                            description: '신비롭고 미래적인 매력. 남다른 감성과 독특한 시각을 가진 특별한 타입이에요.'
+                        }
+                    }
+                },
+                common: {
+                    uploadText: '사진을 업로드하세요',
+                    uploadSubtext: 'JPG, PNG 파일 지원 (최대 10MB)',
+                    selectPhotoText: '사진 선택하기',
+                    shareButtonText: '결과 공유하기',
+                    resetText: '다시 분석하기',
+                    footerText: '* 이 서비스는 재미를 위한 것으로, 과학적 근거에 기반하지 않습니다.',
+                    fileSizeError: '파일 크기는 10MB 이하여야 합니다.',
+                    fileTypeError: '이미지 파일만 업로드 가능합니다.',
+                    fileReadError: '파일을 읽는데 오류가 발생했습니다.',
+                    uploadFirstError: '먼저 이미지를 업로드해주세요.',
+                    linkCopied: '링크가 클립보드에 복사되었습니다!'
                 }
             },
-            ghost: {
-                title: '👻 마귀상 분석기',
-                subtitle: 'AI가 분석하는 나의 마귀상은? 귀여운 마귀들 중 어느 쪽일까요?',
-                analyzeText: '마귀상 분석하기',
-                loadingText: 'AI가 당신의 마귀상을 분석하고 있습니다...',
-                resultTitle: '🎃 당신의 마귀상 분석 결과',
-                data: {
-                    reaper: {
-                        emoji: '🧛',
-                        name: '뱀파이어상',
-                        description: '검은 망토를 두른 신비로운 매력. 창백한 얼굴과 날카로운 송곳니가 특징인 고혹적인 카리스마예요.'
-                    },
-                    ghost: {
-                        emoji: '👻',
-                        name: '유령상',
-                        description: '긴 검은 머리와 창백한 파란 얼굴의 신비로운 매력. 빨간 눈동자가 인상적인 애절한 아름다움이에요.'
-                    },
-                    zombie: {
-                        emoji: '🧟‍♀️',
-                        name: '좀비상',
-                        description: '엉뚱하고 독특한 매력의 소유자. 자유롭고 개성 강한 분위기가 매력적이에요.'
-                    },
-                    jiangshi: {
-                        emoji: '💀',
-                        name: '해골상',
-                        description: '하얀 뼈의 깔끔한 매력. 단순하면서도 강렬한 인상을 주는 미니멀한 카리스마예요.'
-                    },
-                    monster: {
-                        emoji: '🦇',
-                        name: '박쥐상',
-                        description: '어둠 속을 자유롭게 날아다니는 매력. 신비롭고 야성적인 분위기가 독특한 타입이에요.'
-                    },
-                    alien: {
-                        emoji: '👽',
-                        name: '외계인상',
-                        description: '신비롭고 미래적인 매력. 남다른 감성과 독특한 시각을 가진 특별한 타입이에요.'
+            en: {
+                animal: {
+                    title: '🐾 Animal Face Analyzer',
+                    subtitle: 'Discover your animal face type with AI! Upload your photo and find out!',
+                    modeText: '🐾 Animal',
+                    analyzeText: 'Analyze Animal Face',
+                    loadingText: 'AI is analyzing your animal face type...',
+                    resultTitle: '🎉 Your Animal Face Analysis Result',
+                    shareText: 'Animal Face',
+                    data: {
+                        cat: {
+                            emoji: '🐱',
+                            name: 'Cat Face',
+                            description: 'Mysterious and elegant charm. Sharp eyes and graceful atmosphere are your signature features.'
+                        },
+                        dog: {
+                            emoji: '🐶',
+                            name: 'Dog Face',
+                            description: 'Friendly and warm charm. Pure and bright energy radiates from you.'
+                        },
+                        rabbit: {
+                            emoji: '🐰',
+                            name: 'Rabbit Face',
+                            description: 'Cute and adorable charm. Round eyes and soft impression are your characteristics.'
+                        },
+                        fox: {
+                            emoji: '🦊',
+                            name: 'Fox Face',
+                            description: 'Smart and captivating charm. Sophisticated and intelligent atmosphere stands out.'
+                        },
+                        bear: {
+                            emoji: '🐻',
+                            name: 'Bear Face',
+                            description: 'Reliable and cozy charm. Trustworthy and stable impression defines you.'
+                        },
+                        deer: {
+                            emoji: '🦌',
+                            name: 'Deer Face',
+                            description: 'Elegant and pure charm. Clear and clean atmosphere is impressive.'
+                        }
                     }
+                },
+                ghost: {
+                    title: '👻 Ghost Face Analyzer',
+                    subtitle: 'Discover your ghost face type with AI! Which cute ghost are you most like?',
+                    modeText: '👻 Ghost',
+                    analyzeText: 'Analyze Ghost Face',
+                    loadingText: 'AI is analyzing your ghost face type...',
+                    resultTitle: '🎃 Your Ghost Face Analysis Result',
+                    shareText: 'Ghost Face',
+                    data: {
+                        vampire: {
+                            emoji: '🧛',
+                            name: 'Vampire Face',
+                            description: 'Mysterious charm with a black cape. Pale face and sharp fangs create an alluring charisma.'
+                        },
+                        ghost: {
+                            emoji: '👻',
+                            name: 'Ghost Face',
+                            description: 'Mysterious charm with long black hair and pale blue face. Red eyes create a sorrowful beauty.'
+                        },
+                        zombie: {
+                            emoji: '🧟‍♀️',
+                            name: 'Zombie Face',
+                            description: 'Quirky and unique charm. Free-spirited and strong personality makes you attractive.'
+                        },
+                        skeleton: {
+                            emoji: '💀',
+                            name: 'Skeleton Face',
+                            description: 'Clean charm of white bones. Simple yet striking impression with minimal charisma.'
+                        },
+                        bat: {
+                            emoji: '🦇',
+                            name: 'Bat Face',
+                            description: 'Charm that flies freely in the darkness. Mysterious and wild atmosphere makes you unique.'
+                        },
+                        alien: {
+                            emoji: '👽',
+                            name: 'Alien Face',
+                            description: 'Mysterious and futuristic charm. Special type with unique sensitivity and perspective.'
+                        }
+                    }
+                },
+                common: {
+                    uploadText: 'Upload Your Photo',
+                    uploadSubtext: 'JPG, PNG files supported (Max 10MB)',
+                    selectPhotoText: 'Select Photo',
+                    shareButtonText: 'Share Result',
+                    resetText: 'Analyze Again',
+                    footerText: '* This service is for entertainment purposes and is not based on scientific evidence.',
+                    fileSizeError: 'File size must be 10MB or less.',
+                    fileTypeError: 'Only image files can be uploaded.',
+                    fileReadError: 'An error occurred while reading the file.',
+                    uploadFirstError: 'Please upload an image first.',
+                    linkCopied: 'Link copied to clipboard!'
                 }
             }
         };
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // 언어 버튼 활성화 상태 변경
+            document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // HTML lang 속성 변경
+            document.documentElement.lang = lang;
+            
+            // 모든 텍스트 업데이트
+            updateAllTexts();
+            
+            // 분석 결과가 있으면 새로 표시
+            if (document.getElementById('analysisSection').style.display === 'block') {
+                const results = generateMockResults();
+                displayResults(results);
+            }
+        }
 
         function switchMode(mode) {
             currentMode = mode;
@@ -1065,7 +659,7 @@
             event.target.classList.add('active');
             
             // 텍스트 업데이트
-            updateTexts();
+            updateAllTexts();
             
             // 분석 결과가 있으면 새로 분석
             if (document.getElementById('analysisSection').style.display === 'block') {
@@ -1073,27 +667,45 @@
             }
         }
 
-        function updateTexts() {
-            const data = modeData[currentMode];
-            document.getElementById('mainTitle').textContent = data.title;
-            document.getElementById('mainSubtitle').textContent = data.subtitle;
-            document.getElementById('analyzeButtonText').textContent = data.analyzeText;
-            document.getElementById('loadingText').textContent = data.loadingText;
-            document.getElementById('resultTitle').textContent = data.resultTitle;
+        function updateAllTexts() {
+            const t = translations[currentLanguage];
+            const modeData = t[currentMode];
+            const common = t.common;
+            
+            // 메인 텍스트들
+            document.getElementById('mainTitle').textContent = modeData.title;
+            document.getElementById('mainSubtitle').textContent = modeData.subtitle;
+            document.getElementById('analyzeButtonText').textContent = modeData.analyzeText;
+            document.getElementById('loadingText').textContent = modeData.loadingText;
+            document.getElementById('resultTitle').textContent = modeData.resultTitle;
+            
+            // 모드 버튼 텍스트
+            document.querySelector('.animal-mode-text').textContent = translations[currentLanguage].animal.modeText;
+            document.querySelector('.ghost-mode-text').textContent = translations[currentLanguage].ghost.modeText;
+            
+            // 공통 텍스트들
+            document.getElementById('uploadText').textContent = common.uploadText;
+            document.getElementById('uploadSubtext').textContent = common.uploadSubtext;
+            document.getElementById('selectPhotoText').textContent = common.selectPhotoText;
+            document.getElementById('shareText').textContent = common.shareButtonText;
+            document.getElementById('resetText').textContent = common.resetText;
+            document.getElementById('footerText').textContent = common.footerText;
         }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                const common = translations[currentLanguage].common;
+                
                 // 파일 크기 체크 (10MB 제한)
                 if (file.size > 10 * 1024 * 1024) {
-                    alert('파일 크기는 10MB 이하여야 합니다.');
+                    alert(common.fileSizeError);
                     return;
                 }
                 
                 // 파일 형식 체크
                 if (!file.type.startsWith('image/')) {
-                    alert('이미지 파일만 업로드 가능합니다.');
+                    alert(common.fileTypeError);
                     return;
                 }
                 
@@ -1110,7 +722,7 @@
                     document.getElementById('analysisSection').style.display = 'none';
                 };
                 reader.onerror = function() {
-                    alert('파일을 읽는데 오류가 발생했습니다.');
+                    alert(translations[currentLanguage].common.fileReadError);
                 };
                 reader.readAsDataURL(file);
             }
@@ -1118,7 +730,7 @@
 
         function analyzeImage() {
             if (!uploadedImage) {
-                alert('먼저 이미지를 업로드해주세요.');
+                alert(translations[currentLanguage].common.uploadFirstError);
                 return;
             }
             
@@ -1135,7 +747,7 @@
         }
 
         function generateMockResults() {
-            const currentData = modeData[currentMode].data;
+            const currentData = translations[currentLanguage][currentMode].data;
             const categories = Object.keys(currentData);
             const results = [];
             
@@ -1173,7 +785,7 @@
 
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
-            const currentData = modeData[currentMode].data;
+            const currentData = translations[currentLanguage][currentMode].data;
             resultsContainer.innerHTML = '';
 
             results.forEach((result, index) => {
@@ -1199,17 +811,24 @@
         }
 
         function shareResult() {
-            const mode = currentMode === 'animal' ? '동물상' : '마귀상';
+            const modeText = translations[currentLanguage][currentMode].shareText;
+            const shareTitle = currentLanguage === 'ko' 
+                ? `${modeText} 분석 결과`
+                : `${modeText} Analysis Result`;
+            const shareText = currentLanguage === 'ko'
+                ? `나의 ${modeText}을 확인해보세요!`
+                : `Check out my ${modeText} analysis!`;
+            
             if (navigator.share) {
                 navigator.share({
-                    title: `${mode} 분석 결과`,
-                    text: `나의 ${mode}을 확인해보세요!`,
+                    title: shareTitle,
+                    text: shareText,
                     url: window.location.href
                 });
             } else {
-                const text = `나의 ${mode} 분석 결과를 확인해보세요! ` + window.location.href;
+                const text = `${shareText} ` + window.location.href;
                 navigator.clipboard.writeText(text).then(() => {
-                    alert('링크가 클립보드에 복사되었습니다!');
+                    alert(translations[currentLanguage].common.linkCopied);
                 });
             }
         }
@@ -1232,6 +851,9 @@
             previewImg.src = '';
             previewImg.style.display = 'none';
         }
+
+        // 초기 텍스트 설정
+        updateAllTexts();
     </script>
 </body>
 </html>
