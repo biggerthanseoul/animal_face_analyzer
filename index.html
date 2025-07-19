@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>동물상 & 마귀상 분석기 - 나는 무슨 상?</title>
+    <title>동물상 & 마귀상 & 음식상 분석기 - 나는 무슨 상?</title>
     <style>
         * {
             margin: 0;
@@ -25,7 +25,12 @@
 
         /* 마귀상 테마 */
         .ghost-theme {
-            background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
+        }
+
+        /* 음식상 테마 */
+        .food-theme {
+            background: linear-gradient(135deg, #d35400 0%, #c0392b 100%);
         }
 
         .container {
@@ -173,7 +178,11 @@
         }
 
         .ghost-theme .btn {
-            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            background: linear-gradient(45deg, #7b1fa2, #4a148c);
+        }
+
+        .food-theme .btn {
+            background: linear-gradient(45deg, #e67e22, #d35400);
         }
 
         .preview-section {
@@ -213,6 +222,10 @@
 
         .ghost-theme .result-title {
             color: #e74c3c;
+        }
+
+        .food-theme .result-title {
+            color: #f39c12;
         }
 
         .result-item {
@@ -274,6 +287,10 @@
             background: linear-gradient(90deg, #e74c3c, #f39c12);
         }
 
+        .food-theme .percentage-fill {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
         .percentage-text {
             font-size: 1.2rem;
             font-weight: bold;
@@ -283,6 +300,10 @@
 
         .ghost-theme .percentage-text {
             color: #e74c3c;
+        }
+
+        .food-theme .percentage-text {
+            color: #f39c12;
         }
 
         .share-section {
@@ -296,7 +317,11 @@
         }
 
         .ghost-theme .share-btn {
-            background: linear-gradient(45deg, #8e44ad, #3498db);
+            background: linear-gradient(45deg, #4a148c, #1a237e);
+        }
+
+        .food-theme .share-btn {
+            background: linear-gradient(45deg, #d35400, #2980b9);
         }
 
         .loading {
@@ -375,6 +400,9 @@
                     </button>
                     <button class="mode-button" onclick="switchMode('ghost')">
                         <span class="ghost-mode-text">👻 마귀상</span>
+                    </button>
+                    <button class="mode-button" onclick="switchMode('food')">
+                        <span class="food-mode-text">🍕 음식상</span>
                     </button>
                 </div>
             </div>
@@ -516,6 +544,47 @@
                         }
                     }
                 },
+                food: {
+                    title: '🍕 음식상 분석기',
+                    subtitle: 'AI가 분석하는 나의 음식상은? 맛있는 음식들 중 어느 쪽일까요?',
+                    modeText: '🍕 음식상',
+                    analyzeText: '음식상 분석하기',
+                    loadingText: 'AI가 당신의 음식상을 분석하고 있습니다...',
+                    resultTitle: '🍽️ 당신의 음식상 분석 결과',
+                    shareText: '음식상',
+                    data: {
+                        dumpling: {
+                            emoji: '🥟',
+                            name: '만두상',
+                            description: '포근하고 따뜻한 매력의 소유자. 둥글둥글하고 귀여운 인상으로 모든 사람을 편안하게 만들어줘요.'
+                        },
+                        hotdog: {
+                            emoji: '🌭',
+                            name: '핫도그상',
+                            description: '활발하고 에너지 넘치는 매력의 소유자. 친근하고 유쾌한 분위기로 분위기 메이커 역할을 해요.'
+                        },
+                        pumpkin: {
+                            emoji: '🎃',
+                            name: '호박상',
+                            description: '따뜻하고 온화한 매력의 소유자. 건강하고 자연스러운 아름다움이 매력적인 타입이에요.'
+                        },
+                        chicken: {
+                            emoji: '🍗',
+                            name: '닭다리상',
+                            description: '실용적이고 든든한 매력의 소유자. 믿음직하고 정겨운 분위기로 많은 사람들에게 사랑받아요.'
+                        },
+                        pizza: {
+                            emoji: '🍕',
+                            name: '피자상',
+                            description: '다채롭고 매력적인 매력의 소유자. 다양한 면모를 가진 개성 강한 카리스마가 돋보여요.'
+                        },
+                        carrot: {
+                            emoji: '🥕',
+                            name: '당근상',
+                            description: '건강하고 활기찬 매력의 소유자. 밝고 긍정적인 에너지로 주변을 환하게 만들어줘요.'
+                        }
+                    }
+                },
                 common: {
                     uploadText: '사진을 업로드하세요',
                     uploadSubtext: 'JPG, PNG 파일 지원 (최대 10MB)',
@@ -613,6 +682,47 @@
                         }
                     }
                 },
+                food: {
+                    title: '🍕 Food Face Analyzer',
+                    subtitle: 'Discover your food face type with AI! Which delicious food are you most like?',
+                    modeText: '🍕 Food',
+                    analyzeText: 'Analyze Food Face',
+                    loadingText: 'AI is analyzing your food face type...',
+                    resultTitle: '🍽️ Your Food Face Analysis Result',
+                    shareText: 'Food Face',
+                    data: {
+                        dumpling: {
+                            emoji: '🥟',
+                            name: 'Dumpling Face',
+                            description: 'Warm and cozy charm. Round and cute impression that makes everyone feel comfortable.'
+                        },
+                        hotdog: {
+                            emoji: '🌭',
+                            name: 'Hot Dog Face',
+                            description: 'Active and energetic charm. Friendly and cheerful atmosphere that acts as a mood maker.'
+                        },
+                        pumpkin: {
+                            emoji: '🎃',
+                            name: 'Pumpkin Face',
+                            description: 'Warm and gentle charm. Healthy and natural beauty that is attractive.'
+                        },
+                        chicken: {
+                            emoji: '🍗',
+                            name: 'Chicken Leg Face',
+                            description: 'Practical and reliable charm. Trustworthy and homely atmosphere loved by many.'
+                        },
+                        pizza: {
+                            emoji: '🍕',
+                            name: 'Pizza Face',
+                            description: 'Colorful and attractive charm. Strong personality with various aspects stands out.'
+                        },
+                        carrot: {
+                            emoji: '🥕',
+                            name: 'Carrot Face',
+                            description: 'Healthy and vibrant charm. Bright and positive energy that brightens up surroundings.'
+                        }
+                    }
+                },
                 common: {
                     uploadText: 'Upload Your Photo',
                     uploadSubtext: 'JPG, PNG files supported (Max 10MB)',
@@ -655,7 +765,13 @@
             const buttons = document.querySelectorAll('.mode-button');
             
             // 테마 변경
-            body.className = mode === 'animal' ? 'animal-theme' : 'ghost-theme';
+            if (mode === 'animal') {
+                body.className = 'animal-theme';
+            } else if (mode === 'ghost') {
+                body.className = 'ghost-theme';
+            } else if (mode === 'food') {
+                body.className = 'food-theme';
+            }
             
             // 버튼 활성화 상태 변경
             buttons.forEach(btn => btn.classList.remove('active'));
@@ -685,6 +801,7 @@
             // 모드 버튼 텍스트
             document.querySelector('.animal-mode-text').textContent = translations[currentLanguage].animal.modeText;
             document.querySelector('.ghost-mode-text').textContent = translations[currentLanguage].ghost.modeText;
+            document.querySelector('.food-mode-text').textContent = translations[currentLanguage].food.modeText;
             
             // 공통 텍스트들
             document.getElementById('uploadText').textContent = common.uploadText;
