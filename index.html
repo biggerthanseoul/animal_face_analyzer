@@ -792,18 +792,27 @@
             // 텍스트 업데이트
             updateAllTexts();
             
-            // 이미지가 업로드되어 있고 아직 분석되지 않은 상태라면 미리보기 상태 유지
-            if (uploadedImage && document.getElementById('previewSection').style.display !== 'none') {
-                // 미리보기 상태 유지하면서 버튼 텍스트만 업데이트
-                return;
-            }
+            // 현재 상태 확인하고 적절한 화면 유지
+            const uploadSection = document.getElementById('uploadSection');
+            const previewSection = document.getElementById('previewSection');
+            const analysisSection = document.getElementById('analysisSection');
+            const loadingSection = document.getElementById('loading');
             
-            // 분석 결과가 있으면 새로 분석하지 않고 기존 결과를 새 모드로 변환
-            if (document.getElementById('analysisSection').style.display === 'block') {
-                // 새로운 모드로 가짜 결과 생성해서 표시
-                const newResults = generateMockResults();
-                currentResults = newResults;
-                displayResults(newResults);
+            // 이미지가 업로드되어 있다면
+            if (uploadedImage) {
+                // 분석 완료 상태라면 분석 결과 화면 유지하고 새 결과 생성
+                if (analysisSection.style.display === 'block') {
+                    const newResults = generateMockResults();
+                    currentResults = newResults;
+                    displayResults(newResults);
+                }
+                // 미리보기 상태라면 미리보기 유지
+                else if (previewSection.style.display === 'block' || previewSection.style.display === '') {
+                    uploadSection.style.display = 'none';
+                    previewSection.style.display = 'block';
+                    analysisSection.style.display = 'none';
+                    loadingSection.style.display = 'none';
+                }
             }
         }
 
@@ -841,12 +850,14 @@
                 // 파일 크기 체크 (10MB 제한)
                 if (file.size > 10 * 1024 * 1024) {
                     alert(common.fileSizeError);
+                    this.value = ''; // 파일 입력 초기화
                     return;
                 }
                 
                 // 파일 형식 체크
                 if (!file.type.startsWith('image/')) {
                     alert(common.fileTypeError);
+                    this.value = ''; // 파일 입력 초기화
                     return;
                 }
                 
@@ -856,14 +867,18 @@
                     const previewImg = document.getElementById('previewImage');
                     previewImg.src = uploadedImage;
                     
-                    // 화면 전환
+                    // 화면 전환 - 명시적으로 상태 설정
                     document.getElementById('uploadSection').style.display = 'none';
                     document.getElementById('previewSection').style.display = 'block';
                     document.getElementById('analysisSection').style.display = 'none';
                     document.getElementById('loading').style.display = 'none';
+                    
+                    // 기존 분석 결과 초기화
+                    currentResults = null;
                 };
                 reader.onerror = function() {
                     alert(translations[currentLanguage].common.fileReadError);
+                    document.getElementById('fileInput').value = ''; // 파일 입력 초기화
                 };
                 reader.readAsDataURL(file);
             }
