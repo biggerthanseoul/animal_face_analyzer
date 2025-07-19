@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>동물상 분석기 - 나는 무슨 동물상?</title>
+    <title>동물상 & 마귀상 분석기 - 나는 무슨 상?</title>
     <style>
         * {
             margin: 0;
@@ -13,9 +13,19 @@
 
         body {
             font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: white;
+            transition: all 0.5s ease;
+        }
+
+        /* 동물상 테마 */
+        .animal-theme {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* 마귀상 테마 */
+        .ghost-theme {
+            background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%);
         }
 
         .container {
@@ -26,7 +36,36 @@
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+        }
+
+        .mode-switcher {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .mode-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            margin: 0 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-button.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .mode-button:hover {
+            background: rgba(255,255,255,0.25);
         }
 
         .title {
@@ -34,11 +73,13 @@
             font-weight: bold;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.5s ease;
         }
 
         .subtitle {
             font-size: 1.2rem;
             opacity: 0.9;
+            transition: all 0.5s ease;
         }
 
         .upload-section {
@@ -102,6 +143,10 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
+        .ghost-theme .btn {
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+        }
+
         .preview-section {
             display: none;
             background: rgba(255,255,255,0.1);
@@ -137,7 +182,11 @@
             color: #ffd700;
         }
 
-        .animal-result {
+        .ghost-theme .result-title {
+            color: #e74c3c;
+        }
+
+        .result-item {
             display: flex;
             align-items: center;
             background: rgba(255,255,255,0.1);
@@ -147,27 +196,623 @@
             transition: all 0.3s ease;
         }
 
-        .animal-result:hover {
+        .result-item:hover {
             background: rgba(255,255,255,0.15);
             transform: translateY(-2px);
         }
 
-        .animal-emoji {
+        .result-emoji {
             font-size: 3rem;
             margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: 60px;
         }
 
-        .animal-info {
+        /* 저승사자 캐릭터 - 이미지 기반 정확한 재현 */
+        .reaper-character {
+            width: 48px;
+            height: 48px;
+            position: relative;
+            display: inline-block;
+            transform: scale(1.0);
+        }
+
+        /* 삿갓 */
+        .reaper-hat {
+            width: 48px;
+            height: 14px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            border: 1px solid #1a252f;
+        }
+
+        .reaper-hat::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 10px;
+            background: linear-gradient(to bottom, #2c3e50, #34495e);
+            border-radius: 2px 2px 0 0;
+            border: 1px solid #1a252f;
+        }
+
+        /* 얼굴 */
+        .reaper-face {
+            width: 24px;
+            height: 26px;
+            background: #95a5a6;
+            border-radius: 45%;
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            border: 1.5px solid #2c3e50;
+        }
+
+        /* 눈썹 */
+        .reaper-eyebrows::before,
+        .reaper-eyebrows::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            width: 5px;
+            height: 1px;
+            background: #2c3e50;
+        }
+
+        .reaper-eyebrows::before {
+            left: 15px;
+        }
+
+        .reaper-eyebrows::after {
+            left: 25px;
+        }
+
+        /* 눈 - 반달 황색 */
+        .reaper-eyes::before,
+        .reaper-eyes::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            width: 5px;
+            height: 4px;
+            background: #f39c12;
+            border-radius: 50% 50% 0 0;
+            border: 1px solid #2c3e50;
+            border-bottom: 1.5px solid #2c3e50;
+        }
+
+        .reaper-eyes::before {
+            left: 15px;
+        }
+
+        .reaper-eyes::after {
+            left: 25px;
+        }
+
+        /* 입 */
+        .reaper-mouth::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: 20px;
+            width: 6px;
+            height: 1px;
+            background: #2c3e50;
+        }
+
+        /* 귀 */
+        .reaper-ears::before,
+        .reaper-ears::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 3px;
+            height: 4px;
+            background: #95a5a6;
+            border-radius: 50%;
+            border: 1px solid #2c3e50;
+        }
+
+        .reaper-ears::before {
+            left: 9px;
+        }
+
+        .reaper-ears::after {
+            right: 9px;
+        }
+
+        /* 옷깃 */
+        .reaper-collar {
+            position: absolute;
+            top: 34px;
+            left: 16px;
+            width: 16px;
+            height: 6px;
+            background: #34495e;
+            border-radius: 2px 2px 0 0;
+            border: 1px solid #2c3e50;
+        }
+
+        /* 갈색 끈 */
+        .reaper-tie {
+            position: absolute;
+            top: 36px;
+            left: 21px;
+            width: 6px;
+            height: 3px;
+            background: #8b4513;
+            border-radius: 1px;
+        }
+
+        /* 처녀귀신 캐릭터 - 더 정확한 버전 */
+        .ghost-character {
+            width: 48px;
+            height: 48px;
+            position: relative;
+            display: inline-block;
+            transform: scale(1.0);
+        }
+
+        /* 머리카락 - 더 길고 자연스럽게 */
+        .ghost-hair {
+            position: absolute;
+            top: 0px;
+            left: 6px;
+            width: 36px;
+            height: 22px;
+            background: #1a252f;
+            border-radius: 50% 50% 20% 20%;
+            overflow: hidden;
+        }
+
+        /* 머리카락 윗부분 */
+        .ghost-hair::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 3px;
+            width: 30px;
+            height: 15px;
+            background: #2c3e50;
+            border-radius: 50%;
+        }
+
+        /* 얼굴 - 더 창백하고 파란색 */
+        .ghost-face {
+            width: 26px;
+            height: 30px;
+            background: #cce7ff;
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            top: 10px;
+            left: 11px;
+            border: 1.5px solid #85929e;
+        }
+
+        /* 눈 - 더 큰 빨간 눈동자 */
+        .ghost-eyes::before,
+        .ghost-eyes::after {
+            content: '';
+            position: absolute;
+            top: 17px;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 2px solid #c0392b;
+        }
+
+        .ghost-eyes::before {
+            left: 14px;
+        }
+
+        .ghost-eyes::after {
+            left: 26px;
+        }
+
+        /* 눈동자 */
+        .ghost-pupils::before,
+        .ghost-pupils::after {
+            content: '';
+            position: absolute;
+            top: 19px;
+            width: 3px;
+            height: 3px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        .ghost-pupils::before {
+            left: 16px;
+        }
+
+        .ghost-pupils::after {
+            left: 28px;
+        }
+
+        /* 입 - 더 작고 놀란 표정 */
+        .ghost-mouth::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: 21px;
+            width: 4px;
+            height: 4px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        /* 손 - 더 정확한 위치와 모양 */
+        .ghost-hands::before,
+        .ghost-hands::after {
+            content: '';
+            position: absolute;
+            top: 32px;
+            width: 8px;
+            height: 10px;
+            background: #cce7ff;
+            border-radius: 60% 60% 40% 40%;
+            border: 1px solid #85929e;
+        }
+
+        .ghost-hands::before {
+            left: 4px;
+            transform: rotate(-15deg);
+        }
+
+        .ghost-hands::after {
+            right: 4px;
+            transform: rotate(15deg);
+        }
+
+        /* 강시 캐릭터 - 더 정확한 버전 */
+        .jiangshi-character {
+            width: 48px;
+            height: 48px;
+            position: relative;
+            display: inline-block;
+            transform: scale(1.0);
+        }
+
+        /* 모자 - 더 정확한 검은 모자 */
+        .jiangshi-hat {
+            width: 32px;
+            height: 8px;
+            background: linear-gradient(to bottom, #2c3e50, #34495e);
+            border-radius: 2px;
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            border: 1px solid #1a252f;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* 부적 - 더 정확한 크기와 위치 */
+        .jiangshi-charm {
+            width: 12px;
+            height: 14px;
+            background: linear-gradient(to bottom, #f1c40f, #f39c12);
+            border: 2px solid #e74c3c;
+            position: absolute;
+            top: -2px;
+            left: 18px;
+            font-size: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c0392b;
+            font-weight: bold;
+            font-family: serif;
+            border-radius: 1px;
+        }
+
+        /* 얼굴 - 더 정확한 파란색과 크기 */
+        .jiangshi-face {
+            width: 26px;
+            height: 28px;
+            background: #85c1e9;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 11px;
+            border: 2px solid #2c3e50;
+        }
+
+        /* 눈 - 더 큰 동그란 눈 */
+        .jiangshi-eyes::before,
+        .jiangshi-eyes::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 1.5px solid #2c3e50;
+        }
+
+        .jiangshi-eyes::before {
+            left: 15px;
+        }
+
+        .jiangshi-eyes::after {
+            left: 25px;
+        }
+
+        /* 눈동자 */
+        .jiangshi-pupils::before,
+        .jiangshi-pupils::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            width: 2px;
+            height: 2px;
+            background: #2c3e50;
+            border-radius: 50%;
+        }
+
+        .jiangshi-pupils::before {
+            left: 17px;
+        }
+
+        .jiangshi-pupils::after {
+            left: 27px;
+        }
+
+        /* 입 - 더 작은 입 */
+        .jiangshi-mouth::before {
+            content: '';
+            position: absolute;
+            top: 26px;
+            left: 21px;
+            width: 4px;
+            height: 2px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        /* 볼 - 더 자연스러운 색상 */
+        .jiangshi-cheeks::before,
+        .jiangshi-cheeks::after {
+            content: '';
+            position: absolute;
+            top: 22px;
+            width: 4px;
+            height: 4px;
+            background: #7fb3d3;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .jiangshi-cheeks::before {
+            left: 12px;
+        }
+
+        .jiangshi-cheeks::after {
+            left: 30px;
+        }
+
+        /* 목걸이 - 더 정확한 빨간 구슬들 */
+        .jiangshi-necklace {
+            position: absolute;
+            top: 36px;
+            left: 16px;
+            width: 16px;
+            height: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .jiangshi-necklace::before,
+        .jiangshi-necklace::after {
+            content: '';
+            width: 3px;
+            height: 3px;
+            background: #e74c3c;
+            border-radius: 50%;
+            border: 0.5px solid #c0392b;
+        }
+
+        /* 추가 구슬들 */
+        .jiangshi-beads::before,
+        .jiangshi-beads::after {
+            content: '';
+            position: absolute;
+            top: 36px;
+            width: 3px;
+            height: 3px;
+            background: #e74c3c;
+            border-radius: 50%;
+            border: 0.5px solid #c0392b;
+        }
+
+        .jiangshi-beads::before {
+            left: 19px;
+        }
+
+        .jiangshi-beads::after {
+            left: 26px;
+        }
+
+        /* 처녀귀신 캐릭터 CSS */
+        .ghost-character {
+            width: 50px;
+            height: 60px;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 얼굴 */
+        .ghost-face {
+            width: 30px;
+            height: 35px;
+            background: #d6eaf8;
+            border-radius: 50% 50% 45% 45%;
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            border: 2px solid #5d6d7e;
+        }
+
+        /* 머리카락 */
+        .ghost-hair {
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            width: 34px;
+            height: 20px;
+            background: #2c3e50;
+            border-radius: 50% 50% 0 0;
+        }
+
+        /* 눈 */
+        .ghost-eyes {
+            position: absolute;
+            top: 15px;
+            left: 6px;
+            width: 18px;
+            height: 8px;
+        }
+
+        .ghost-eyes::before,
+        .ghost-eyes::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 2px solid #e74c3c;
+        }
+
+        .ghost-eyes::before {
+            left: 0;
+        }
+
+        .ghost-eyes::after {
+            right: 0;
+        }
+
+        /* 입 */
+        .ghost-mouth {
+            position: absolute;
+            top: 25px;
+            left: 12px;
+            width: 6px;
+            height: 4px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        /* 강시 캐릭터 CSS */
+        .jiangshi-character {
+            width: 50px;
+            height: 60px;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 모자 */
+        .jiangshi-hat {
+            width: 35px;
+            height: 12px;
+            background: #2c3e50;
+            border-radius: 3px;
+            position: absolute;
+            top: 3px;
+            left: 7px;
+        }
+
+        /* 부적 */
+        .jiangshi-charm {
+            width: 12px;
+            height: 15px;
+            background: #f1c40f;
+            border: 1px solid #e74c3c;
+            position: absolute;
+            top: 0px;
+            left: 19px;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* 얼굴 */
+        .jiangshi-face {
+            width: 30px;
+            height: 30px;
+            background: #aed6f1;
+            border-radius: 50%;
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            border: 2px solid #34495e;
+        }
+
+        /* 눈 */
+        .jiangshi-eyes {
+            position: absolute;
+            top: 8px;
+            left: 6px;
+            width: 18px;
+            height: 6px;
+        }
+
+        .jiangshi-eyes::before,
+        .jiangshi-eyes::after {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 1px solid #34495e;
+        }
+
+        .jiangshi-eyes::before {
+            left: 2px;
+        }
+
+        .jiangshi-eyes::after {
+            right: 2px;
+        }
+
+        /* 입 */
+        .jiangshi-mouth {
+            position: absolute;
+            top: 16px;
+            left: 12px;
+            width: 6px;
+            height: 3px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        .result-info {
             flex: 1;
         }
 
-        .animal-name {
+        .result-name {
             font-size: 1.3rem;
             font-weight: bold;
             margin-bottom: 5px;
         }
 
-        .animal-description {
+        .result-description {
             font-size: 0.9rem;
             opacity: 0.8;
             margin-bottom: 10px;
@@ -187,11 +832,19 @@
             transition: width 1s ease;
         }
 
+        .ghost-theme .percentage-fill {
+            background: linear-gradient(90deg, #e74c3c, #f39c12);
+        }
+
         .percentage-text {
             font-size: 1.2rem;
             font-weight: bold;
             margin-left: 15px;
             color: #ffd700;
+        }
+
+        .ghost-theme .percentage-text {
+            color: #e74c3c;
         }
 
         .share-section {
@@ -202,6 +855,10 @@
         .share-btn {
             background: linear-gradient(45deg, #48cae4, #0096c7);
             margin: 0 10px;
+        }
+
+        .ghost-theme .share-btn {
+            background: linear-gradient(45deg, #8e44ad, #3498db);
         }
 
         .loading {
@@ -241,23 +898,32 @@
                 padding: 20px;
             }
             
-            .animal-result {
+            .result-item {
                 flex-direction: column;
                 text-align: center;
             }
             
-            .animal-emoji {
+            .result-emoji {
                 margin-right: 0;
                 margin-bottom: 10px;
+            }
+
+            .mode-button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
-<body>
+<body class="animal-theme">
     <div class="container">
         <div class="header">
-            <h1 class="title">🐾 동물상 분석기</h1>
-            <p class="subtitle">AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!</p>
+            <div class="mode-switcher">
+                <button class="mode-button active" onclick="switchMode('animal')">🐾 동물상</button>
+                <button class="mode-button" onclick="switchMode('ghost')">👻 마귀상</button>
+            </div>
+            <h1 class="title" id="mainTitle">🐾 동물상 분석기</h1>
+            <p class="subtitle" id="mainSubtitle">AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!</p>
         </div>
 
         <div class="upload-section" id="uploadSection">
@@ -275,17 +941,19 @@
         <div class="preview-section" id="previewSection">
             <img id="previewImage" class="preview-image" alt="미리보기">
             <div style="text-align: center;">
-                <button class="btn" onclick="analyzeImage()">동물상 분석하기</button>
+                <button class="btn" onclick="analyzeImage()">
+                    <span id="analyzeButtonText">동물상 분석하기</span>
+                </button>
             </div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <div>AI가 당신의 동물상을 분석하고 있습니다...</div>
+            <div id="loadingText">AI가 당신의 동물상을 분석하고 있습니다...</div>
         </div>
 
         <div class="analysis-section" id="analysisSection">
-            <h2 class="result-title">🎉 당신의 동물상 분석 결과</h2>
+            <h2 class="result-title" id="resultTitle">🎉 당신의 동물상 분석 결과</h2>
             <div id="results"></div>
             
             <div class="share-section">
@@ -300,40 +968,119 @@
     </div>
 
     <script>
-        const animalData = {
-            cat: {
-                emoji: '🐱',
-                name: '고양이상',
-                description: '신비롭고 도도한 매력의 소유자. 날카로운 눈매와 우아한 분위기가 특징이에요.'
+        let currentMode = 'animal';
+        let uploadedImage = null;
+
+        const modeData = {
+            animal: {
+                title: '🐾 동물상 분석기',
+                subtitle: 'AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!',
+                analyzeText: '동물상 분석하기',
+                loadingText: 'AI가 당신의 동물상을 분석하고 있습니다...',
+                resultTitle: '🎉 당신의 동물상 분석 결과',
+                data: {
+                    cat: {
+                        emoji: '🐱',
+                        name: '고양이상',
+                        description: '신비롭고 도도한 매력의 소유자. 날카로운 눈매와 우아한 분위기가 특징이에요.'
+                    },
+                    dog: {
+                        emoji: '🐶',
+                        name: '강아지상',
+                        description: '친근하고 따뜻한 매력의 소유자. 순수하고 밝은 에너지가 넘쳐나요.'
+                    },
+                    rabbit: {
+                        emoji: '🐰',
+                        name: '토끼상',
+                        description: '귀엽고 앙증맞은 매력의 소유자. 둥근 눈과 부드러운 인상이 특징이에요.'
+                    },
+                    fox: {
+                        emoji: '🦊',
+                        name: '여우상',
+                        description: '영리하고 매혹적인 매력의 소유자. 세련되고 지적인 분위기가 돋보여요.'
+                    },
+                    bear: {
+                        emoji: '🐻',
+                        name: '곰상',
+                        description: '든든하고 포근한 매력의 소유자. 믿음직하고 안정감 있는 인상이에요.'
+                    },
+                    deer: {
+                        emoji: '🦌',
+                        name: '사슴상',
+                        description: '우아하고 청순한 매력의 소유자. 맑고 깨끗한 분위기가 인상적이에요.'
+                    }
+                }
             },
-            dog: {
-                emoji: '🐶',
-                name: '강아지상',
-                description: '친근하고 따뜻한 매력의 소유자. 순수하고 밝은 에너지가 넘쳐나요.'
-            },
-            rabbit: {
-                emoji: '🐰',
-                name: '토끼상',
-                description: '귀엽고 앙증맞은 매력의 소유자. 둥근 눈과 부드러운 인상이 특징이에요.'
-            },
-            fox: {
-                emoji: '🦊',
-                name: '여우상',
-                description: '영리하고 매혹적인 매력의 소유자. 세련되고 지적인 분위기가 돋보여요.'
-            },
-            bear: {
-                emoji: '🐻',
-                name: '곰상',
-                description: '든든하고 포근한 매력의 소유자. 믿음직하고 안정감 있는 인상이에요.'
-            },
-            deer: {
-                emoji: '🦌',
-                name: '사슴상',
-                description: '우아하고 청순한 매력의 소유자. 맑고 깨끗한 분위기가 인상적이에요.'
+            ghost: {
+                title: '👻 마귀상 분석기',
+                subtitle: 'AI가 분석하는 나의 마귀상은? 귀여운 마귀들 중 어느 쪽일까요?',
+                analyzeText: '마귀상 분석하기',
+                loadingText: 'AI가 당신의 마귀상을 분석하고 있습니다...',
+                resultTitle: '🎃 당신의 마귀상 분석 결과',
+                data: {
+                    reaper: {
+                        emoji: '🧛',
+                        name: '뱀파이어상',
+                        description: '검은 망토를 두른 신비로운 매력. 창백한 얼굴과 날카로운 송곳니가 특징인 고혹적인 카리스마예요.'
+                    },
+                    ghost: {
+                        emoji: '👻',
+                        name: '유령상',
+                        description: '긴 검은 머리와 창백한 파란 얼굴의 신비로운 매력. 빨간 눈동자가 인상적인 애절한 아름다움이에요.'
+                    },
+                    zombie: {
+                        emoji: '🧟‍♀️',
+                        name: '좀비상',
+                        description: '엉뚱하고 독특한 매력의 소유자. 자유롭고 개성 강한 분위기가 매력적이에요.'
+                    },
+                    jiangshi: {
+                        emoji: '💀',
+                        name: '해골상',
+                        description: '하얀 뼈의 깔끔한 매력. 단순하면서도 강렬한 인상을 주는 미니멀한 카리스마예요.'
+                    },
+                    monster: {
+                        emoji: '🦇',
+                        name: '박쥐상',
+                        description: '어둠 속을 자유롭게 날아다니는 매력. 신비롭고 야성적인 분위기가 독특한 타입이에요.'
+                    },
+                    alien: {
+                        emoji: '👽',
+                        name: '외계인상',
+                        description: '신비롭고 미래적인 매력. 남다른 감성과 독특한 시각을 가진 특별한 타입이에요.'
+                    }
+                }
             }
         };
 
-        let uploadedImage = null;
+        function switchMode(mode) {
+            currentMode = mode;
+            const body = document.body;
+            const buttons = document.querySelectorAll('.mode-button');
+            
+            // 테마 변경
+            body.className = mode === 'animal' ? 'animal-theme' : 'ghost-theme';
+            
+            // 버튼 활성화 상태 변경
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 텍스트 업데이트
+            updateTexts();
+            
+            // 분석 결과가 있으면 새로 분석
+            if (document.getElementById('analysisSection').style.display === 'block') {
+                analyzeImage();
+            }
+        }
+
+        function updateTexts() {
+            const data = modeData[currentMode];
+            document.getElementById('mainTitle').textContent = data.title;
+            document.getElementById('mainSubtitle').textContent = data.subtitle;
+            document.getElementById('analyzeButtonText').textContent = data.analyzeText;
+            document.getElementById('loadingText').textContent = data.loadingText;
+            document.getElementById('resultTitle').textContent = data.resultTitle;
+        }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -353,7 +1100,6 @@
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('loading').style.display = 'block';
 
-            // 실제로는 AI 분석을 하지만, 데모용으로 랜덤 결과 생성
             setTimeout(() => {
                 const results = generateMockResults();
                 displayResults(results);
@@ -363,33 +1109,33 @@
         }
 
         function generateMockResults() {
-            const animals = Object.keys(animalData);
+            const currentData = modeData[currentMode].data;
+            const categories = Object.keys(currentData);
             const results = [];
             
-            // 랜덤하게 점수 생성 (하나는 높게, 나머지는 낮게)
+            // 랜덤하게 점수 생성
             let remainingPercentage = 100;
-            const topAnimal = animals[Math.floor(Math.random() * animals.length)];
-            const topScore = 60 + Math.random() * 30; // 60-90%
+            const topCategory = categories[Math.floor(Math.random() * categories.length)];
+            const topScore = 60 + Math.random() * 30;
             
             results.push({
-                animal: topAnimal,
+                category: topCategory,
                 percentage: topScore
             });
             
             remainingPercentage -= topScore;
             
-            // 나머지 동물들에게 남은 퍼센트 분배
-            const remainingAnimals = animals.filter(a => a !== topAnimal);
-            remainingAnimals.forEach((animal, index) => {
-                if (index === remainingAnimals.length - 1) {
+            const remainingCategories = categories.filter(c => c !== topCategory);
+            remainingCategories.forEach((category, index) => {
+                if (index === remainingCategories.length - 1) {
                     results.push({
-                        animal: animal,
+                        category: category,
                         percentage: Math.max(remainingPercentage, 0)
                     });
                 } else {
                     const score = Math.random() * (remainingPercentage / 2);
                     results.push({
-                        animal: animal,
+                        category: category,
                         percentage: score
                     });
                     remainingPercentage -= score;
@@ -401,19 +1147,20 @@
 
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
+            const currentData = modeData[currentMode].data;
             resultsContainer.innerHTML = '';
 
             results.forEach((result, index) => {
-                const animal = animalData[result.animal];
+                const item = currentData[result.category];
                 const percentage = Math.round(result.percentage);
                 
                 const resultElement = document.createElement('div');
-                resultElement.className = 'animal-result';
+                resultElement.className = 'result-item';
                 resultElement.innerHTML = `
-                    <div class="animal-emoji">${animal.emoji}</div>
-                    <div class="animal-info">
-                        <div class="animal-name">${animal.name}</div>
-                        <div class="animal-description">${animal.description}</div>
+                    <div class="result-emoji">${item.emoji}</div>
+                    <div class="result-info">
+                        <div class="result-name">${item.name}</div>
+                        <div class="result-description">${item.description}</div>
                         <div class="percentage-bar">
                             <div class="percentage-fill" style="width: ${percentage}%"></div>
                         </div>
@@ -426,15 +1173,15 @@
         }
 
         function shareResult() {
+            const mode = currentMode === 'animal' ? '동물상' : '마귀상';
             if (navigator.share) {
                 navigator.share({
-                    title: '동물상 분석 결과',
-                    text: '나의 동물상을 확인해보세요!',
+                    title: `${mode} 분석 결과`,
+                    text: `나의 ${mode}을 확인해보세요!`,
                     url: window.location.href
                 });
             } else {
-                // 간단한 복사 기능
-                const text = '나의 동물상 분석 결과를 확인해보세요! ' + window.location.href;
+                const text = `나의 ${mode} 분석 결과를 확인해보세요! ` + window.location.href;
                 navigator.clipboard.writeText(text).then(() => {
                     alert('링크가 클립보드에 복사되었습니다!');
                 });
