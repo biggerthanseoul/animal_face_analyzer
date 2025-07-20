@@ -18,17 +18,14 @@
             transition: all 0.5s ease;
         }
 
-        /* 동물상 테마 */
         .animal-theme {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        /* 마귀상 테마 */
         .ghost-theme {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
         }
 
-        /* 음식상 테마 */
         .food-theme {
             background: linear-gradient(135deg, #d35400 0%, #c0392b 100%);
         }
@@ -741,6 +738,21 @@
         };
 
         function generateMockResults() {
+            const currentData = translations[currentLanguage][currentMode].data;
+            const categories = Object.keys(currentData);
+            const results = [];
+            
+            let remainingPercentage = 100;
+            const topCategory = categories[Math.floor(Math.random() * categories.length)];
+            const topScore = 60 + Math.random() * 30;
+            
+            results.push({
+                category: topCategory,
+                percentage: topScore
+            });
+            
+            remainingPercentage -= topScore;
+            
             const remainingCategories = categories.filter(c => c !== topCategory);
             remainingCategories.forEach((category, index) => {
                 if (index === remainingCategories.length - 1) {
@@ -797,6 +809,16 @@
             event.target.classList.add('active');
             
             updateAllTexts();
+            
+            if (uploadedImage) {
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+                document.getElementById('analysisSection').style.display = 'none';
+                
+                const previewImg = document.getElementById('previewImage');
+                previewImg.src = uploadedImage;
+                previewImg.style.display = 'block';
+            }
             
             if (document.getElementById('analysisSection').style.display === 'block') {
                 analyzeImage();
@@ -952,4 +974,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
