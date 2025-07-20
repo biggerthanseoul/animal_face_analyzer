@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>동물상 & 마귀상 & 음식상 분석기 - AI 얼굴 분석</title>
+    <title>동물상 & 마귀상 & 음식상 분석기 - 나는 무슨 상?</title>
     <style>
         * {
             margin: 0;
@@ -18,14 +18,17 @@
             transition: all 0.5s ease;
         }
 
+        /* 동물상 테마 */
         .animal-theme {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
+        /* 마귀상 테마 */
         .ghost-theme {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
         }
 
+        /* 음식상 테마 */
         .food-theme {
             background: linear-gradient(135deg, #d35400 0%, #c0392b 100%);
         }
@@ -408,13 +411,13 @@
         </div>
 
         <div class="upload-section" id="uploadSection">
-            <div class="upload-area" onclick="selectFile()">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📷</div>
                 <div class="upload-text" id="uploadText">사진을 업로드하세요</div>
                 <div class="upload-subtext" id="uploadSubtext">JPG, PNG 파일 지원 (최대 10MB)</div>
             </div>
-            <input type="file" id="fileInput" accept="image/*" style="display: none;">
-            <button class="btn" onclick="selectFile()">
+            <input type="file" id="fileInput" accept="image/*">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
                 <span id="selectPhotoText">사진 선택하기</span>
             </button>
         </div>
@@ -456,7 +459,7 @@
         let currentMode = 'animal';
         let currentLanguage = 'ko';
         let uploadedImage = null;
-        let currentResults = null;
+        let currentResults = null; // 현재 분석 결과를 저장
 
         const translations = {
             ko: {
@@ -737,11 +740,139 @@
             }
         };
 
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // 언어 버튼 활성화 상태 변경
+            document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // HTML lang 속성 변경
+            document.documentElement.lang = lang;
+            
+            // 모든 텍스트 업데이트
+            updateAllTexts();
+            
+            // 분석 결과가 있으면 기존 결과를 언어만 바꿔서 표시
+            if (document.getElementById('analysisSection').style.display === 'block' && currentResults) {
+                displayResults(currentResults);
+            }
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const body = document.body;
+            const buttons = document.querySelectorAll('.mode-button');
+            
+            // 테마 변경
+            if (mode === 'animal') {
+                body.className = 'animal-theme';
+            } else if (mode === 'ghost') {
+                body.className = 'ghost-theme';
+            } else if (mode === 'food') {
+                body.className = 'food-theme';
+            }
+            
+            // 버튼 활성화 상태 변경
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 텍스트 업데이트
+            updateAllTexts();
+            
+            // 분석 결과가 있으면 새로 분석
+            if (document.getElementById('analysisSection').style.display === 'block') {
+                analyzeImage();
+            }
+        }
+
+        function updateAllTexts() {
+            const t = translations[currentLanguage];
+            const modeData = t[currentMode];
+            const common = t.common;
+            
+            // 메인 텍스트들
+            document.getElementById('mainTitle').textContent = modeData.title;
+            document.getElementById('mainSubtitle').textContent = modeData.subtitle;
+            document.getElementById('analyzeButtonText').textContent = modeData.analyzeText;
+            document.getElementById('loadingText').textContent = modeData.loadingText;
+            document.getElementById('resultTitle').textContent = modeData.resultTitle;
+            
+            // 모드 버튼 텍스트
+            document.querySelector('.animal-mode-text').textContent = translations[currentLanguage].animal.modeText;
+            document.querySelector('.ghost-mode-text').textContent = translations[currentLanguage].ghost.modeText;
+            document.querySelector('.food-mode-text').textContent = translations[currentLanguage].food.modeText;
+            
+            // 공통 텍스트들
+            document.getElementById('uploadText').textContent = common.uploadText;
+            document.getElementById('uploadSubtext').textContent = common.uploadSubtext;
+            document.getElementById('selectPhotoText').textContent = common.selectPhotoText;
+            document.getElementById('shareText').textContent = common.shareButtonText;
+            document.getElementById('resetText').textContent = common.resetText;
+            document.getElementById('footerText').textContent = common.footerText;
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const common = translations[currentLanguage].common;
+                
+                // 파일 크기 체크 (10MB 제한)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(common.fileSizeError);
+                    return;
+                }
+                
+                // 파일 형식 체크
+                if (!file.type.startsWith('image/')) {
+                    alert(common.fileTypeError);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = e.target.result;
+                    const previewImg = document.getElementById('previewImage');
+                    previewImg.src = uploadedImage;
+                    previewImg.style.display = 'block';
+                    
+                    // 화면 전환
+                    document.getElementById('uploadSection').style.display = 'none';
+                    document.getElementById('previewSection').style.display = 'block';
+                    document.getElementById('analysisSection').style.display = 'none';
+                };
+                reader.onerror = function() {
+                    alert(translations[currentLanguage].common.fileReadError);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function analyzeImage() {
+            if (!uploadedImage) {
+                alert(translations[currentLanguage].common.uploadFirstError);
+                return;
+            }
+            
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('analysisSection').style.display = 'none';
+
+            setTimeout(() => {
+                const results = generateMockResults();
+                currentResults = results; // 결과를 저장
+                displayResults(results);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analysisSection').style.display = 'block';
+            }, 3000);
+        }
+
         function generateMockResults() {
             const currentData = translations[currentLanguage][currentMode].data;
             const categories = Object.keys(currentData);
             const results = [];
             
+            // 랜덤하게 점수 생성
             let remainingPercentage = 100;
             const topCategory = categories[Math.floor(Math.random() * categories.length)];
             const topScore = 60 + Math.random() * 30;
@@ -771,100 +902,6 @@
             });
 
             return results.sort((a, b) => b.percentage - a.percentage);
-        }
-
-        function selectFile() {
-            document.getElementById('fileInput').click();
-        }
-
-        function switchLanguage(lang) {
-            currentLanguage = lang;
-            
-            document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.documentElement.lang = lang;
-            
-            updateAllTexts();
-            
-            if (document.getElementById('analysisSection').style.display === 'block' && currentResults) {
-                displayResults(currentResults);
-            }
-        }
-
-        function switchMode(mode) {
-            currentMode = mode;
-            const body = document.body;
-            const buttons = document.querySelectorAll('.mode-button');
-            
-            if (mode === 'animal') {
-                body.className = 'animal-theme';
-            } else if (mode === 'ghost') {
-                body.className = 'ghost-theme';
-            } else if (mode === 'food') {
-                body.className = 'food-theme';
-            }
-            
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            updateAllTexts();
-            
-            if (uploadedImage) {
-                document.getElementById('uploadSection').style.display = 'none';
-                document.getElementById('previewSection').style.display = 'block';
-                document.getElementById('analysisSection').style.display = 'none';
-                
-                const previewImg = document.getElementById('previewImage');
-                previewImg.src = uploadedImage;
-                previewImg.style.display = 'block';
-            }
-            
-            if (document.getElementById('analysisSection').style.display === 'block') {
-                analyzeImage();
-            }
-        }
-
-        function updateAllTexts() {
-            const t = translations[currentLanguage];
-            const modeData = t[currentMode];
-            const common = t.common;
-            
-            document.getElementById('mainTitle').textContent = modeData.title;
-            document.getElementById('mainSubtitle').textContent = modeData.subtitle;
-            document.getElementById('analyzeButtonText').textContent = modeData.analyzeText;
-            document.getElementById('loadingText').textContent = modeData.loadingText;
-            document.getElementById('resultTitle').textContent = modeData.resultTitle;
-            
-            document.querySelector('.animal-mode-text').textContent = translations[currentLanguage].animal.modeText;
-            document.querySelector('.ghost-mode-text').textContent = translations[currentLanguage].ghost.modeText;
-            document.querySelector('.food-mode-text').textContent = translations[currentLanguage].food.modeText;
-            
-            document.getElementById('uploadText').textContent = common.uploadText;
-            document.getElementById('uploadSubtext').textContent = common.uploadSubtext;
-            document.getElementById('selectPhotoText').textContent = common.selectPhotoText;
-            document.getElementById('shareText').textContent = common.shareButtonText;
-            document.getElementById('resetText').textContent = common.resetText;
-            document.getElementById('footerText').textContent = common.footerText;
-        }
-
-        function analyzeImage() {
-            if (!uploadedImage) {
-                alert(translations[currentLanguage].common.uploadFirstError);
-                return;
-            }
-            
-            document.getElementById('previewSection').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('analysisSection').style.display = 'none';
-
-            setTimeout(() => {
-                const results = generateMockResults();
-                currentResults = results;
-                displayResults(results);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('analysisSection').style.display = 'block';
-            }, 2000);
         }
 
         function displayResults(results) {
@@ -918,60 +955,27 @@
         }
 
         function resetAnalysis() {
+            // 모든 섹션 초기화
             document.getElementById('uploadSection').style.display = 'block';
             document.getElementById('previewSection').style.display = 'none';
             document.getElementById('analysisSection').style.display = 'none';
             document.getElementById('loading').style.display = 'none';
             
+            // 파일 입력 초기화
             document.getElementById('fileInput').value = '';
             
+            // 이미지 데이터 초기화
             uploadedImage = null;
-            currentResults = null;
+            currentResults = null; // 결과도 초기화
             
+            // 미리보기 이미지 초기화
             const previewImg = document.getElementById('previewImage');
             previewImg.src = '';
             previewImg.style.display = 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const common = translations[currentLanguage].common;
-                        
-                        if (file.size > 10 * 1024 * 1024) {
-                            alert(common.fileSizeError);
-                            return;
-                        }
-                        
-                        if (!file.type.startsWith('image/')) {
-                            alert(common.fileTypeError);
-                            return;
-                        }
-                        
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            uploadedImage = e.target.result;
-                            const previewImg = document.getElementById('previewImage');
-                            previewImg.src = uploadedImage;
-                            previewImg.style.display = 'block';
-                            
-                            document.getElementById('uploadSection').style.display = 'none';
-                            document.getElementById('previewSection').style.display = 'block';
-                            document.getElementById('analysisSection').style.display = 'none';
-                        };
-                        reader.onerror = function() {
-                            alert(translations[currentLanguage].common.fileReadError);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-            
-            updateAllTexts();
-        });
+        // 초기 텍스트 설정
+        updateAllTexts();
     </script>
 </body>
 </html>
