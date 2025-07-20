@@ -196,7 +196,6 @@
         }
 
         .preview-section {
-            display: none;
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -217,7 +216,6 @@
         }
 
         .analysis-section {
-            display: none;
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -337,7 +335,6 @@
         }
 
         .loading {
-            display: none;
             text-align: center;
             padding: 40px;
         }
@@ -362,6 +359,15 @@
             margin-top: 50px;
             opacity: 0.7;
             font-size: 0.9rem;
+        }
+
+        /* 화면 상태 관리 */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -403,17 +409,17 @@
         <div class="header">
             <div class="controls">
                 <div class="language-switcher">
-                    <button class="lang-button active" onclick="switchLanguage('ko')">한국어</button>
-                    <button class="lang-button" onclick="switchLanguage('en')">English</button>
+                    <button class="lang-button active" data-lang="ko">한국어</button>
+                    <button class="lang-button" data-lang="en">English</button>
                 </div>
                 <div class="mode-switcher">
-                    <button class="mode-button active" onclick="switchMode('animal', this)">
+                    <button class="mode-button active" data-mode="animal">
                         <span class="animal-mode-text">🐾 동물상</span>
                     </button>
-                    <button class="mode-button" onclick="switchMode('ghost', this)">
+                    <button class="mode-button" data-mode="ghost">
                         <span class="ghost-mode-text">👻 마귀상</span>
                     </button>
-                    <button class="mode-button" onclick="switchMode('food', this)">
+                    <button class="mode-button" data-mode="food">
                         <span class="food-mode-text">🍕 음식상</span>
                     </button>
                 </div>
@@ -422,43 +428,51 @@
             <p class="subtitle" id="mainSubtitle">AI가 분석하는 나의 동물상은? 사진을 업로드해보세요!</p>
         </div>
 
-        <div class="upload-section" id="uploadSection">
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📷</div>
-                <div class="upload-text" id="uploadText">사진을 업로드하세요</div>
-                <div class="upload-subtext" id="uploadSubtext">JPG, PNG 파일 지원 (최대 10MB)</div>
-            </div>
-            <input type="file" id="fileInput" accept="image/*">
-            <button class="btn" onclick="document.getElementById('fileInput').click()">
-                <span id="selectPhotoText">사진 선택하기</span>
-            </button>
-        </div>
-
-        <div class="preview-section" id="previewSection">
-            <img id="previewImage" class="preview-image" alt="미리보기">
-            <div style="text-align: center;">
-                <button class="btn" onclick="analyzeImage()">
-                    <span id="analyzeButtonText">동물상 분석하기</span>
+        <div class="section active" id="uploadSection">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text" id="uploadText">사진을 업로드하세요</div>
+                    <div class="upload-subtext" id="uploadSubtext">JPG, PNG 파일 지원 (최대 10MB)</div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*">
+                <button class="btn" id="selectPhotoBtn">
+                    <span id="selectPhotoText">사진 선택하기</span>
                 </button>
             </div>
         </div>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div id="loadingText">AI가 당신의 동물상을 분석하고 있습니다...</div>
+        <div class="section" id="previewSection">
+            <div class="preview-section">
+                <img id="previewImage" class="preview-image" alt="미리보기">
+                <div style="text-align: center;">
+                    <button class="btn" id="analyzeBtn">
+                        <span id="analyzeButtonText">동물상 분석하기</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="analysis-section" id="analysisSection">
-            <h2 class="result-title" id="resultTitle">🎉 당신의 동물상 분석 결과</h2>
-            <div id="results"></div>
-            
-            <div class="share-section">
-                <button class="btn share-btn" onclick="shareResult()">
-                    <span id="shareText">사이트 공유하기</span>
-                </button>
-                <button class="btn" onclick="resetAnalysis()">
-                    <span id="resetText">다시 분석하기</span>
-                </button>
+        <div class="section" id="loadingSection">
+            <div class="loading">
+                <div class="spinner"></div>
+                <div id="loadingText">AI가 당신의 동물상을 분석하고 있습니다...</div>
+            </div>
+        </div>
+
+        <div class="section" id="analysisSection">
+            <div class="analysis-section">
+                <h2 class="result-title" id="resultTitle">🎉 당신의 동물상 분석 결과</h2>
+                <div id="results"></div>
+                
+                <div class="share-section">
+                    <button class="btn share-btn" id="shareBtn">
+                        <span id="shareText">사이트 공유하기</span>
+                    </button>
+                    <button class="btn" id="resetBtn">
+                        <span id="resetText">다시 분석하기</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -468,10 +482,31 @@
     </div>
 
     <script>
-        let currentMode = 'animal';
-        let currentLanguage = 'ko';
-        let uploadedImage = null;
-        let currentResults = null; // 현재 분석 결과를 저장
+        // 전역 상태 관리
+        const AppState = {
+            currentMode: 'animal',
+            currentLanguage: 'ko',
+            uploadedImage: null,
+            analysisResults: null,
+            
+            // 현재 섹션 추적
+            currentSection: 'uploadSection',
+            
+            // 섹션 전환
+            showSection(sectionId) {
+                // 모든 섹션 숨기기
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // 지정된 섹션 보이기
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    this.currentSection = sectionId;
+                }
+            }
+        };
 
         const translations = {
             ko: {
@@ -752,12 +787,17 @@
             }
         };
 
+        // 언어 전환 함수
         function switchLanguage(lang) {
-            currentLanguage = lang;
+            AppState.currentLanguage = lang;
             
             // 언어 버튼 활성화 상태 변경
-            document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.lang-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
             
             // HTML lang 속성 변경
             document.documentElement.lang = lang;
@@ -766,75 +806,49 @@
             updateAllTexts();
             
             // 분석 결과가 있으면 기존 결과를 언어만 바꿔서 표시
-            if (document.getElementById('analysisSection').style.display === 'block' && currentResults) {
-                displayResults(currentResults);
+            if (AppState.currentSection === 'analysisSection' && AppState.analysisResults) {
+                displayResults(AppState.analysisResults);
             }
         }
 
-        function switchMode(mode, buttonElement) {
-            currentMode = mode;
+        // 모드 전환 함수
+        function switchMode(mode) {
+            AppState.currentMode = mode;
             const body = document.body;
-            const buttons = document.querySelectorAll('.mode-button');
             
             // 테마 변경
-            if (mode === 'animal') {
-                body.className = 'animal-theme';
-            } else if (mode === 'ghost') {
-                body.className = 'ghost-theme';
-            } else if (mode === 'food') {
-                body.className = 'food-theme';
-            }
+            body.className = mode + '-theme';
             
             // 버튼 활성화 상태 변경
-            buttons.forEach(btn => btn.classList.remove('active'));
-            if (buttonElement) {
-                buttonElement.classList.add('active');
-            }
+            document.querySelectorAll('.mode-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active');
+                }
+            });
             
             // 텍스트 업데이트
             updateAllTexts();
             
-            // 현재 상태 확인하고 적절한 화면 유지
-            const uploadSection = document.getElementById('uploadSection');
-            const previewSection = document.getElementById('previewSection');
-            const analysisSection = document.getElementById('analysisSection');
-            const loadingSection = document.getElementById('loading');
-            
-            // 현재 표시되는 섹션 확인 (computed style 사용)
-            const uploadDisplay = window.getComputedStyle(uploadSection).display;
-            const previewDisplay = window.getComputedStyle(previewSection).display;
-            const analysisDisplay = window.getComputedStyle(analysisSection).display;
-            
-            console.log('Current displays:', { uploadDisplay, previewDisplay, analysisDisplay });
-            console.log('uploadedImage exists:', !!uploadedImage);
-            
-            // 이미지가 업로드되어 있다면
-            if (uploadedImage) {
-                // 분석 완료 상태라면 분석 결과 화면 유지하고 새 결과 생성
-                if (analysisDisplay !== 'none') {
+            // 현재 상태에 따른 처리
+            if (AppState.uploadedImage) {
+                // 분석 완료 상태라면 새로운 결과 생성
+                if (AppState.currentSection === 'analysisSection') {
                     const newResults = generateMockResults();
-                    currentResults = newResults;
+                    AppState.analysisResults = newResults;
                     displayResults(newResults);
                 }
-                // 미리보기 상태거나 업로드 후 상태라면 미리보기 유지
-                else {
-                    uploadSection.style.display = 'none';
-                    previewSection.style.display = 'block';
-                    analysisSection.style.display = 'none';
-                    loadingSection.style.display = 'none';
-                    
-                    // 이미지가 있는지 다시 확인하고 설정
-                    const previewImg = document.getElementById('previewImage');
-                    if (previewImg.src !== uploadedImage) {
-                        previewImg.src = uploadedImage;
-                    }
+                // 미리보기 상태라면 미리보기 유지
+                else if (AppState.currentSection === 'previewSection') {
+                    // 이미 올바른 상태이므로 텍스트만 업데이트
                 }
             }
         }
 
+        // 텍스트 업데이트 함수
         function updateAllTexts() {
-            const t = translations[currentLanguage];
-            const modeData = t[currentMode];
+            const t = translations[AppState.currentLanguage];
+            const modeData = t[AppState.currentMode];
             const common = t.common;
             
             // 메인 텍스트들
@@ -845,9 +859,9 @@
             document.getElementById('resultTitle').textContent = modeData.resultTitle;
             
             // 모드 버튼 텍스트
-            document.querySelector('.animal-mode-text').textContent = translations[currentLanguage].animal.modeText;
-            document.querySelector('.ghost-mode-text').textContent = translations[currentLanguage].ghost.modeText;
-            document.querySelector('.food-mode-text').textContent = translations[currentLanguage].food.modeText;
+            document.querySelector('.animal-mode-text').textContent = translations[AppState.currentLanguage].animal.modeText;
+            document.querySelector('.ghost-mode-text').textContent = translations[AppState.currentLanguage].ghost.modeText;
+            document.querySelector('.food-mode-text').textContent = translations[AppState.currentLanguage].food.modeText;
             
             // 공통 텍스트들
             document.getElementById('uploadText').textContent = common.uploadText;
@@ -858,82 +872,63 @@
             document.getElementById('footerText').textContent = common.footerText;
         }
 
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            console.log('File selected:', file ? file.name : 'none');
+        // 파일 처리 함수
+        function handleFileSelection(file) {
+            const common = translations[AppState.currentLanguage].common;
             
-            if (file) {
-                const common = translations[currentLanguage].common;
-                
-                // 파일 크기 체크 (10MB 제한)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert(common.fileSizeError);
-                    this.value = ''; // 파일 입력 초기화
-                    return;
-                }
-                
-                // 파일 형식 체크
-                if (!file.type.startsWith('image/')) {
-                    alert(common.fileTypeError);
-                    this.value = ''; // 파일 입력 초기화
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    console.log('Image loaded successfully');
-                    uploadedImage = e.target.result;
-                    const previewImg = document.getElementById('previewImage');
-                    previewImg.src = uploadedImage;
-                    
-                    // 화면 전환 - 명시적으로 상태 설정
-                    document.getElementById('uploadSection').style.display = 'none';
-                    document.getElementById('previewSection').style.display = 'block';
-                    document.getElementById('analysisSection').style.display = 'none';
-                    document.getElementById('loading').style.display = 'none';
-                    
-                    console.log('Switched to preview section');
-                    
-                    // 기존 분석 결과 초기화
-                    currentResults = null;
-                    
-                    // 이미지 로드 완료 후 강제로 다시 확인
-                    setTimeout(() => {
-                        const img = document.getElementById('previewImage');
-                        console.log('Preview image src set:', img.src ? 'yes' : 'no');
-                        console.log('Preview section visible:', window.getComputedStyle(document.getElementById('previewSection')).display);
-                    }, 100);
-                };
-                reader.onerror = function() {
-                    console.error('Error reading file');
-                    alert(translations[currentLanguage].common.fileReadError);
-                    document.getElementById('fileInput').value = ''; // 파일 입력 초기화
-                };
-                reader.readAsDataURL(file);
+            // 파일 크기 체크 (10MB 제한)
+            if (file.size > 10 * 1024 * 1024) {
+                alert(common.fileSizeError);
+                return false;
             }
-        });
+            
+            // 파일 형식 체크
+            if (!file.type.startsWith('image/')) {
+                alert(common.fileTypeError);
+                return false;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                AppState.uploadedImage = e.target.result;
+                const previewImg = document.getElementById('previewImage');
+                previewImg.src = AppState.uploadedImage;
+                
+                // 미리보기 섹션으로 전환
+                AppState.showSection('previewSection');
+                
+                // 기존 분석 결과 초기화
+                AppState.analysisResults = null;
+            };
+            reader.onerror = function() {
+                alert(common.fileReadError);
+            };
+            reader.readAsDataURL(file);
+            
+            return true;
+        }
 
+        // 분석 함수
         function analyzeImage() {
-            if (!uploadedImage) {
-                alert(translations[currentLanguage].common.uploadFirstError);
+            if (!AppState.uploadedImage) {
+                alert(translations[AppState.currentLanguage].common.uploadFirstError);
                 return;
             }
             
-            document.getElementById('previewSection').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('analysisSection').style.display = 'none';
+            // 로딩 섹션으로 전환
+            AppState.showSection('loadingSection');
 
             setTimeout(() => {
                 const results = generateMockResults();
-                currentResults = results; // 결과를 저장
+                AppState.analysisResults = results;
                 displayResults(results);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('analysisSection').style.display = 'block';
+                AppState.showSection('analysisSection');
             }, 3000);
         }
 
+        // 결과 생성 함수
         function generateMockResults() {
-            const currentData = translations[currentLanguage][currentMode].data;
+            const currentData = translations[AppState.currentLanguage][AppState.currentMode].data;
             const categories = Object.keys(currentData);
             const results = [];
             
@@ -969,9 +964,10 @@
             return results.sort((a, b) => b.percentage - a.percentage);
         }
 
+        // 결과 표시 함수
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
-            const currentData = translations[currentLanguage][currentMode].data;
+            const currentData = translations[AppState.currentLanguage][AppState.currentMode].data;
             resultsContainer.innerHTML = '';
 
             results.forEach((result, index) => {
@@ -996,12 +992,13 @@
             });
         }
 
+        // 공유 함수
         function shareResult() {
-            const modeText = translations[currentLanguage][currentMode].shareText;
-            const shareTitle = currentLanguage === 'ko' 
+            const modeText = translations[AppState.currentLanguage][AppState.currentMode].shareText;
+            const shareTitle = AppState.currentLanguage === 'ko' 
                 ? `${modeText} 분석 결과`
                 : `${modeText} Analysis Result`;
-            const shareText = currentLanguage === 'ko'
+            const shareText = AppState.currentLanguage === 'ko'
                 ? `나의 ${modeText}을 확인해보세요!`
                 : `Check out my ${modeText} analysis!`;
             
@@ -1014,32 +1011,81 @@
             } else {
                 const text = `${shareText} ` + window.location.href;
                 navigator.clipboard.writeText(text).then(() => {
-                    alert(translations[currentLanguage].common.linkCopied);
+                    alert(translations[AppState.currentLanguage].common.linkCopied);
                 });
             }
         }
 
+        // 리셋 함수
         function resetAnalysis() {
-            // 모든 섹션 초기화
-            document.getElementById('uploadSection').style.display = 'block';
-            document.getElementById('previewSection').style.display = 'none';
-            document.getElementById('analysisSection').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
+            // 상태 초기화
+            AppState.uploadedImage = null;
+            AppState.analysisResults = null;
             
             // 파일 입력 초기화
             document.getElementById('fileInput').value = '';
             
-            // 이미지 데이터 초기화
-            uploadedImage = null;
-            currentResults = null; // 결과도 초기화
-            
             // 미리보기 이미지 초기화
             const previewImg = document.getElementById('previewImage');
             previewImg.src = '';
+            
+            // 업로드 섹션으로 돌아가기
+            AppState.showSection('uploadSection');
         }
 
-        // 초기 텍스트 설정
-        updateAllTexts();
+        // 이벤트 리스너 등록
+        function initializeEventListeners() {
+            // 언어 버튼 이벤트
+            document.querySelectorAll('.lang-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchLanguage(btn.dataset.lang);
+                });
+            });
+
+            // 모드 버튼 이벤트
+            document.querySelectorAll('.mode-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchMode(btn.dataset.mode);
+                });
+            });
+
+            // 파일 입력 이벤트
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFileSelection(file);
+                }
+            });
+
+            // 업로드 영역 클릭 이벤트
+            document.getElementById('uploadArea').addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // 사진 선택 버튼 이벤트
+            document.getElementById('selectPhotoBtn').addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // 분석 버튼 이벤트
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeImage);
+
+            // 공유 버튼 이벤트
+            document.getElementById('shareBtn').addEventListener('click', shareResult);
+
+            // 리셋 버튼 이벤트
+            document.getElementById('resetBtn').addEventListener('click', resetAnalysis);
+        }
+
+        // 초기화 함수
+        function initialize() {
+            initializeEventListeners();
+            updateAllTexts();
+        }
+
+        // DOM 로드 완료 후 초기화
+        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
